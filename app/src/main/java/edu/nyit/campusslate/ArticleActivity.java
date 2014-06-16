@@ -1,0 +1,93 @@
+/**
+ * Copyright (C) 2014 Jason Scott
+ */
+package edu.nyit.campusslate;
+
+import java.util.Locale;
+
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.support.v4.view.ViewPager.SimpleOnPageChangeListener;
+import android.view.Menu;
+import android.view.MenuItem;
+import edu.nyit.campusslate.utils.PocketDbHelper;
+/**
+ * <p>Title: ArticleActivity.java</p>
+ * @author jasonscott
+ */
+public class ArticleActivity extends FragmentActivity {
+
+	private PocketArticlePagerAdapter mArticlePagerAdapter;
+	private ViewPager mArticleViewPager;
+	private String mSectionTitle;
+	private String mArticleId;
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_article);
+
+		mSectionTitle = getIntent().getBundleExtra("article").getString("section_title");
+		mArticleId = getIntent().getBundleExtra("article").getString("article_id");
+		mArticlePagerAdapter = new PocketArticlePagerAdapter(getSupportFragmentManager(), this, mSectionTitle.toLowerCase(Locale.US));
+
+		getActionBar().setDisplayHomeAsUpEnabled(true);
+		getActionBar().setDisplayShowTitleEnabled(false);
+
+		mArticleViewPager = (ViewPager)findViewById(R.id.article_pager);
+		mArticleViewPager.setAdapter(mArticlePagerAdapter);
+
+		mArticleViewPager.setCurrentItem(Integer.valueOf(mArticleId));
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.article, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch(item.getItemId()) {
+		case R.id.action_save:
+			break;
+		case R.id.action_find_in_page:
+			break;
+		default:
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
+	public static class PocketArticlePagerAdapter extends FragmentStatePagerAdapter {
+
+		private FragmentActivity mActivity;
+		private String mTable;
+		public PocketArticlePagerAdapter(FragmentManager fm, FragmentActivity a, String t) {
+			super(fm);
+			mActivity = a;
+			mTable = t;
+		}
+
+		@Override
+		public Fragment getItem(int position) {
+			ArticleFragment fragment = new ArticleFragment();
+			Bundle args = new Bundle();
+			args.putString("section_title", mTable);
+			args.putInt("article_id", position);
+			fragment.setArguments(args);
+
+			return fragment;
+		}
+
+		@Override
+		public int getCount() {
+			return PocketDbHelper.getInstance(mActivity).getNumEntries(mTable);
+		}
+
+	}
+
+}
