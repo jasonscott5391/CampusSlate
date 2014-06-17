@@ -8,11 +8,14 @@ import edu.nyit.campusslate.utils.PocketListAdapter;
 import edu.nyit.campusslate.utils.PocketReaderContract.SlateEntry;
 import edu.nyit.campusslate.utils.PocketXmlParser;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,15 +28,19 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Date;
 import java.util.Locale;
 
 
 /**
  * <p>Title: ArticleListFragment.</p>
  * <p>Description:  wwwww</p>
+ *
  * @author jasonscott
  */
 public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
+
+    //TODO(jasonscott) Better use of logcat to figure out the refresh rate.
     private SwipeRefreshLayout mSwipeRefresh;
     private ListView mArticleList;
     private PocketListAdapter mListAdapter;
@@ -42,15 +49,17 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
     private String mSectionTitle;
     private Integer mCount = 0;
     private AggregatorTask mAsyncTask = new AggregatorTask();
+    private Long mLastRefresh = 0L;
+    private static final long ONE_HOUR = 1000 * 60 * 60;
+    private boolean mRefreshing = false;
 
-    //	private Long mLastRefresh;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         mSectionTitle = getArguments().getString("title");
 
-        mArticleHeader = (View) getActivity().getLayoutInflater()
+        mArticleHeader = getActivity().getLayoutInflater()
                 .inflate(R.layout.article_list_header, null, true);
 
         mArticleHeaderText = (TextView) mArticleHeader.findViewById(R.id.article_count);
@@ -58,16 +67,22 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
                 .getNumEntries(mSectionTitle.toLowerCase(Locale.US));
         if (mCount == 0) {
             mArticleHeaderText.setText("...PULL DOWN TO REFRESH...");
+            onRefresh();
         } else {
             mArticleHeaderText.setText("..." + mCount + " ARTICLES...");
+            if (savedInstanceState != null) {
+                mLastRefresh = savedInstanceState.getLong("last_refresh");
+                Log.d("onCreate(): Last Time Refreshed", new Date(mLastRefresh).toString());
+            }
         }
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater,
                              ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = null;
+        View view;
 
         view = inflater.inflate(R.layout.fragment_article_list, container, false);
         mArticleList = (ListView) view.findViewById(R.id.article_list_view);
@@ -91,6 +106,17 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
     @Override
     public void onResume() {
         super.onResume();
+        mLastRefresh = getActivity().getPreferences(Context.MODE_PRIVATE).getLong("last_refresh", 0L);
+        mRefreshing = (System.currentTimeMillis() - mLastRefresh) > ONE_HOUR ? true : false;
+        Log.d("onResume(): Last Time Refreshed", new Date(mLastRefresh).toString());
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        SharedPreferences.Editor editor = getActivity().getPreferences(Context.MODE_PRIVATE).edit();
+        editor.putLong("last_refresh", System.currentTimeMillis());
+        editor.commit();
 
     }
 
@@ -104,7 +130,9 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
     private class ArticleListClickListener implements ListView.OnItemClickListener {
 
         @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position,
+        public void onItemClick(AdapterView<?> parent,
+                                View view,
+                                int position,
                                 long id) {
             Bundle bundle = new Bundle();
             bundle.putString("section_title", mSectionTitle);
@@ -123,7 +151,6 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
 
         @Override
         protected void onPreExecute() {
-            mSwipeRefresh.setRefreshing(true);
             mArticleHeaderText.setText("...UPDATING...");
         }
 
@@ -144,7 +171,6 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
 
         @Override
         protected void onProgressUpdate(Integer... progress) {
-
         }
 
         @Override
@@ -153,6 +179,8 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
             mArticleHeaderText.setText("..." + mCount + " ARTICLES...");
             mSwipeRefresh.setRefreshing(false);
             mListAdapter.notifyDataSetChanged();
+            mLastRefresh = System.currentTimeMillis();
+            Log.d("onPostExecute(): Last Time Refreshed", new Date(mLastRefresh).toString());
         }
 
         @Override
