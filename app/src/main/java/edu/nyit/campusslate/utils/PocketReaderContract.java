@@ -5,7 +5,7 @@ package edu.nyit.campusslate.utils;
 
 import android.provider.BaseColumns;
 /**
- * <p>Title: PocketReaderContract.java</p>
+ * <p>Title: PocketReaderContract.</p>
  * @author jasonscott
  *
  */
@@ -13,8 +13,11 @@ public class PocketReaderContract {
 	//COMPLETE
 	public PocketReaderContract() {} // Empty Constructor
 
-	// Inner class that defines the tables contents
-	public static abstract class SlateEntry implements BaseColumns {
+    /**
+     * <p>Title: SlateEntry.</p>
+     * <p>Inner class that defines the tables contents.</p>
+     */
+	public abstract static class SlateEntry implements BaseColumns {
 
 		// Url for the campus slate
 		public static final String URL_NEWS = "http://www.campusslate.com/category/news/feed/";

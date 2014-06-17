@@ -16,7 +16,6 @@
             android:background="#30000000"
             android:gravity="center"
             android:padding="3dp"
-            android:text="@string/test_article_number"
             android:textSize="14sp"
             android:textStyle="italic" />
 
@@ -25,8 +24,7 @@
             android:layout_width="match_parent"
             android:layout_height="200dp"
             android:layout_below="@id/article_number"
-            android:contentDescription="@string/test_article_title"
-            android:src="@drawable/test_article_image" />
+            android:contentDescription="@string/test_article_title"/>
 
         <TextView
             android:id="@+id/article_date"
@@ -36,7 +34,6 @@
             android:background="#30000000"
             android:gravity="left"
             android:padding="5dp"
-            android:text="@string/test_article_date"
             android:textSize="14sp" />
 
         <TextView
@@ -45,7 +42,6 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/article_date"
             android:padding="10dp"
-            android:text="@string/test_article_title"
             android:textSize="18sp"
             android:textStyle="bold" />
 
@@ -55,7 +51,6 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/article_title"
             android:padding="5dp"
-            android:text="@string/test_article_author"
             android:textSize="14sp"
             android:textStyle="italic" />
 
@@ -65,7 +60,6 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/article_author"
             android:padding="5dp"
-            android:text="@string/test_article_content"
             android:textSize="16sp" />
     </RelativeLayout>
 

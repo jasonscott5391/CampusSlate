@@ -3,7 +3,7 @@
  */
 package edu.nyit.campusslate;
 
-import java.util.Locale;
+import edu.nyit.campusslate.utils.PocketDbHelper;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -11,12 +11,13 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v4.view.ViewPager.SimpleOnPageChangeListener;
 import android.view.Menu;
 import android.view.MenuItem;
-import edu.nyit.campusslate.utils.PocketDbHelper;
+
+import java.util.Locale;
 /**
- * <p>Title: ArticleActivity.java</p>
+ * <p>Title: ArticleActivity.</p>
+ * <p>Description:</p>
  * @author jasonscott
  */
 public class ArticleActivity extends FragmentActivity {
@@ -33,12 +34,13 @@ public class ArticleActivity extends FragmentActivity {
 
 		mSectionTitle = getIntent().getBundleExtra("article").getString("section_title");
 		mArticleId = getIntent().getBundleExtra("article").getString("article_id");
-		mArticlePagerAdapter = new PocketArticlePagerAdapter(getSupportFragmentManager(), this, mSectionTitle.toLowerCase(Locale.US));
+		mArticlePagerAdapter = new PocketArticlePagerAdapter(getSupportFragmentManager(),
+                this, mSectionTitle.toLowerCase(Locale.US));
 
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 		getActionBar().setDisplayShowTitleEnabled(false);
 
-		mArticleViewPager = (ViewPager)findViewById(R.id.article_pager);
+		mArticleViewPager = (ViewPager) findViewById(R.id.article_pager);
 		mArticleViewPager.setAdapter(mArticlePagerAdapter);
 
 		mArticleViewPager.setCurrentItem(Integer.valueOf(mArticleId));
@@ -62,6 +64,10 @@ public class ArticleActivity extends FragmentActivity {
 		return super.onOptionsItemSelected(item);
 	}
 
+    /**
+     * <p>Title: PocketArticlePagerAdapter.</p>
+     * <p>Description:</p>
+     */
 	public static class PocketArticlePagerAdapter extends FragmentStatePagerAdapter {
 
 		private FragmentActivity mActivity;

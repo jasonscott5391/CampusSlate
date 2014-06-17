@@ -3,7 +3,7 @@
  */
 package edu.nyit.campusslate;
 /**
- * <p>Title: Entry.java</p>
+ * <p>Title: Entry.</p>
  * @author jasonscott
  *
  */
@@ -12,7 +12,7 @@ public class Entry {
 	public String id;
 	public String title;
 	public String link;
-	public String pubDate;
+	public String publicationDate;
 	public String creator;
 	public String category;
 	public String description;
@@ -20,17 +20,40 @@ public class Entry {
 	public String imageUrl;
 	public String bookmarked;
 
-	public Entry(String i, String t, String l, String p, String cre, String cat, String d, String con, String iUrl, String b) {
-		id = i;
-		title = t;
-		link = l;
-		pubDate = p;
-		creator = cre;
-		category = cat;
-		description = d;
-		content = con;
-		imageUrl = iUrl;
-		bookmarked = b;
+    /**
+     * Constructs an entry for the database.  Can be an
+     * article, event, or staff member.
+     * @param id
+     * @param title
+     * @param link
+     * @param publicationDate
+     * @param creator
+     * @param category
+     * @param description
+     * @param content
+     * @param imageUrl
+     * @param bookmarked
+     */
+	public Entry(String id,
+                 String title,
+                 String link,
+                 String publicationDate,
+                 String creator,
+                 String category,
+                 String description,
+                 String content,
+                 String imageUrl,
+                 String bookmarked) {
+		this.id = id;
+		this.title = title;
+		this.link = link;
+		this.publicationDate = publicationDate;
+		this.creator = creator;
+		this.category = category;
+		this.description = description;
+		this.content = content;
+		this.imageUrl = imageUrl;
+		this.bookmarked = bookmarked;
 
 	}
 
@@ -41,7 +64,7 @@ public class Entry {
 		return 	"Id: " + id +
 				"\nTitle: " + title +
 				"\nLink: " + link +
-				"\nPublication Date: " + pubDate +
+				"\nPublication Date: " + publicationDate +
 				"\nCreator: " + creator +
 				"\nCategory: " + category +
 				"\nDescription: " + description +

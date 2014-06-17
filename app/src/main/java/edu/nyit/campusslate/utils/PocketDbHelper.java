@@ -3,23 +3,25 @@
  */
 package edu.nyit.campusslate.utils;
 
+import edu.nyit.campusslate.Entry;
+import edu.nyit.campusslate.utils.PocketReaderContract.SlateEntry;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
-import edu.nyit.campusslate.Entry;
-import edu.nyit.campusslate.utils.PocketReaderContract.SlateEntry;
+
 /**
- * <p>Title: PocketDbHelper.java</p>
+ * <p>Title: PocketDbHelper.</p>
+ * <p>Description:</p>
  * @author jasonscott
  *
  */
 public class PocketDbHelper extends SQLiteOpenHelper {
-	//TODO deleteEntry(), correctEntries(), searchEntries(), onUpgrade()
-	private static PocketDbHelper sInstance = null;
+
+    private static PocketDbHelper sInstance = null;
 	public static final int DATABASE_VERSION = 1;
 	public static final String DATABASE_NAME = "CampusSlate.db";
 	private static final String TEXT_TYPE = " TEXT";
@@ -45,7 +47,7 @@ public class PocketDbHelper extends SQLiteOpenHelper {
 	 * @return sInstance - static instance of applications database
 	 */
 	public static PocketDbHelper getInstance(Context c) {
-		if(sInstance == null) {
+		if (sInstance == null) {
 			sInstance = new PocketDbHelper(c.getApplicationContext());
 		}
 
@@ -65,12 +67,12 @@ public class PocketDbHelper extends SQLiteOpenHelper {
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-		for(String table : SlateEntry.TABLE_NAMES) {
+		for (String table : SlateEntry.TABLE_NAMES) {
 			db.execSQL("CREATE TABLE " + table + SQL_CREATE_ENTRIES);
 		}
 	}
 
-	// TODO Write onUpgrade to handle inserts and updates for new content from RSS feed
+	// TODO(jasonscott)(jasonscott) Write onUpgrade to handle inserts and updates for new content from RSS feed
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
@@ -90,7 +92,7 @@ public class PocketDbHelper extends SQLiteOpenHelper {
 
 		values.put(SlateEntry.COLUMN_NAMES[SlateEntry.TITLE], entry.title);
 		values.put(SlateEntry.COLUMN_NAMES[SlateEntry.LINK], entry.link);
-		values.put(SlateEntry.COLUMN_NAMES[SlateEntry.PUB_DATE], entry.pubDate);
+		values.put(SlateEntry.COLUMN_NAMES[SlateEntry.PUB_DATE], entry.publicationDate);
 		values.put(SlateEntry.COLUMN_NAMES[SlateEntry.CREATOR], entry.creator);
 		values.put(SlateEntry.COLUMN_NAMES[SlateEntry.CATEGORY], entry.category);
 		values.put(SlateEntry.COLUMN_NAMES[SlateEntry.DESCRIPTION], entry.description);
@@ -141,7 +143,7 @@ public class PocketDbHelper extends SQLiteOpenHelper {
 
 		Cursor cursor = db.query(table, null, selection, selectionArgs, null, null, null);
 
-		if(cursor.moveToFirst()) {
+		if (cursor.moveToFirst()) {
 			do {
 				entry = new Entry(
 						cursor.getString(0), 	// Identifier
@@ -163,7 +165,7 @@ public class PocketDbHelper extends SQLiteOpenHelper {
 		return entry;
 	}
 
-	//TODO deleteEntry
+	//TODO(jasonscott)(jasonscott) deleteEntry
 
 	/**
 	 * Deletes an entry from the database.
@@ -172,7 +174,7 @@ public class PocketDbHelper extends SQLiteOpenHelper {
 	 * @return int, number of rows affected
 	 */
 	public int deleteEntry(String table, String id) {
-		//TODO Algorithm to correct _ID column for unaffected rows
+		//TODO(jasonscott) Algorithm to correct _ID column for unaffected rows
 		SQLiteDatabase db = getWritableDatabase();
 
 		String selection = SlateEntry._ID + " = ?";
@@ -189,7 +191,7 @@ public class PocketDbHelper extends SQLiteOpenHelper {
 
 	}
 
-	//TODO searchEntries
+	//TODO(jasonscott) searchEntries
 
 	public Cursor searchEntries(String query) {
 		Cursor cursor = null;
@@ -202,6 +204,6 @@ public class PocketDbHelper extends SQLiteOpenHelper {
 	 * @return int - Number of entries.
 	 */
 	public int getNumEntries(String table) {
-		return (int)DatabaseUtils.queryNumEntries(getReadableDatabase(), table);
+		return (int) DatabaseUtils.queryNumEntries(getReadableDatabase(), table);
 	}
 }

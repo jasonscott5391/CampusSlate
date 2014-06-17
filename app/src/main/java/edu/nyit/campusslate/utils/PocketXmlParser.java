@@ -3,24 +3,26 @@
  */
 package edu.nyit.campusslate.utils;
 
-import java.io.IOException;
-import java.io.InputStream;
+import edu.nyit.campusslate.Entry;
+
+import android.content.Context;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
-import android.content.Context;
-import edu.nyit.campusslate.Entry;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
- * <p>Title: PocketXmlParser.java</p>
+ * <p>Title: PocketXmlParser.</p>
+ * <p>Description:</p>
  * @author jasonscott
  *
  */
 public class PocketXmlParser {
 
-	//TODO parseBuildDate - static method to retrieve build date from xml feed
+	//TODO(jasonscott) parseBuildDate - static method to retrieve build date from xml feed
 	
 	/**
 	 * Parses an InputStream from the Campus Slate web site and
@@ -46,7 +48,7 @@ public class PocketXmlParser {
 		String description = null;
 		String content = null;
 		String imageUrl = null;
-		String bookmarked = new String("no");			// Initially each entry is not stored in user's bookmarks
+		String bookmarked = "no";
 
 		try {
 			factory = XmlPullParserFactory.newInstance();
@@ -58,7 +60,7 @@ public class PocketXmlParser {
 			String eventText = null;
 			int eventType = parser.getEventType();
 
-			while(eventType != XmlPullParser.END_DOCUMENT) {
+			while (eventType != XmlPullParser.END_DOCUMENT) {
 				String tagName = parser.getName();     
 
 				switch(eventType) {
@@ -66,7 +68,7 @@ public class PocketXmlParser {
 					eventText = parser.getText();
 					break;
 				case XmlPullParser.END_TAG:
-					if(tagName.equalsIgnoreCase("item")) {
+					if (tagName.equalsIgnoreCase("item")) {
 
 						entry = new Entry(null,
 								title,
@@ -79,28 +81,28 @@ public class PocketXmlParser {
 								imageUrl,
 								bookmarked);
 
-						if(addEntry(entry, context, section) != -1) {
+						if (addEntry(entry, context, section) != -1) {
 							count++;
 						} else {
-							//TODO Handle error inserting database
+							//TODO(jasonscott) Handle error inserting database
 						}
-					} else if(tagName.equalsIgnoreCase("title")) {
+					} else if (tagName.equalsIgnoreCase("title")) {
 						title = eventText;
-					} else if(tagName.equalsIgnoreCase("link")) {
+					} else if (tagName.equalsIgnoreCase("link")) {
 						link = eventText;
-					} else if(tagName.equalsIgnoreCase("pubDate")) {
-						if(eventText != null) {
+					} else if (tagName.equalsIgnoreCase("pubDate")) {
+						if (eventText != null) {
 							pubDate = eventText.substring(0, eventText.length() - 6);
 						}
-					} else if(tagName.equalsIgnoreCase("creator")) {
+					} else if (tagName.equalsIgnoreCase("creator")) {
 						creator = eventText;
-					} else if(tagName.equalsIgnoreCase("category")) {
+					} else if (tagName.equalsIgnoreCase("category")) {
 						category = eventText;
-					} else if(tagName.equalsIgnoreCase("description")) {
+					} else if (tagName.equalsIgnoreCase("description")) {
 						description = eventText;
-					} else if(tagName.equalsIgnoreCase("encoded")) {					// From "content:encoded"
+					} else if (tagName.equalsIgnoreCase("encoded")) { // "content:encoded"
 						content = eventText;
-						//TODO Parse content for image URL
+						//TODO(jasonscott) Parse content for image URL
 					}
 					break;
 				default:
@@ -108,10 +110,10 @@ public class PocketXmlParser {
 				}
 				eventType = parser.next();
 			}
-		} catch(XmlPullParserException e) {
-			//TODO Handle XmlPullParserException
-		} catch(IOException e) {
-			//TODO Handle IOException accordingly
+		} catch (XmlPullParserException e) {
+			//TODO(jasonscott) Handle XmlPullParserException
+		} catch (IOException e) {
+			//TODO(jasonscott) Handle IOException accordingly
 		}
 		return count;
 	}

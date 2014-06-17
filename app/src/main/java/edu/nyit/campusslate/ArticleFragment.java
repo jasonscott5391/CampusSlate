@@ -3,7 +3,9 @@
  */
 package edu.nyit.campusslate;
 
-import java.util.Locale;
+import edu.nyit.campusslate.utils.PocketBitmapTask;
+import edu.nyit.campusslate.utils.PocketBitmapTask.PocketBitmapDrawable;
+import edu.nyit.campusslate.utils.PocketDbHelper;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -16,11 +18,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import edu.nyit.campusslate.utils.PocketBitmapTask;
-import edu.nyit.campusslate.utils.PocketBitmapTask.PocketBitmapDrawable;
-import edu.nyit.campusslate.utils.PocketDbHelper;
+
+import java.util.Locale;
 /**
- * <p>Title: ArticleFragment.java</p>
+ * <p>Title: ArticleFragment.</p>
  * @author jasonscott
  *
  */
@@ -43,48 +44,59 @@ public class ArticleFragment extends Fragment {
 
 		mArticleSection = getArguments().getString("section_title");
 		mArticleId = getArguments().getInt("article_id");
-		mNumEntries = PocketDbHelper.getInstance(getActivity()).getNumEntries(mArticleSection.toLowerCase(Locale.US));
+		mNumEntries = PocketDbHelper.getInstance(getActivity())
+                .getNumEntries(mArticleSection.toLowerCase(Locale.US));
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View view = null;
+	public View onCreateView(LayoutInflater inflater,
+                             ViewGroup container,
+                             Bundle savedInstanceState) {
+		View view;
 
 		view = inflater.inflate(R.layout.fragment_article, container, false);
-		mArticleNumber = (TextView)view.findViewById(R.id.article_number);
-		mArticleImage = (ImageView)view.findViewById(R.id.article_image);
-		mArticleDate = (TextView)view.findViewById(R.id.article_date);
-		mArticleTitle = (TextView)view.findViewById(R.id.article_title);
-		mArticleAuthor = (TextView)view.findViewById(R.id.article_author);
-		mArticleContent = (TextView)view.findViewById(R.id.article_content);
+		mArticleNumber = (TextView) view.findViewById(R.id.article_number);
+		mArticleImage = (ImageView) view.findViewById(R.id.article_image);
+		mArticleDate = (TextView) view.findViewById(R.id.article_date);
+		mArticleTitle = (TextView) view.findViewById(R.id.article_title);
+		mArticleAuthor = (TextView) view.findViewById(R.id.article_author);
+		mArticleContent = (TextView) view.findViewById(R.id.article_content);
 
-		Entry entry = PocketDbHelper.getInstance(getActivity()).retrieveEntry(mArticleSection.toLowerCase(Locale.US), String.valueOf(mArticleId+1));
+		Entry entry = PocketDbHelper.getInstance(getActivity())
+                .retrieveEntry(mArticleSection.toLowerCase(Locale.US),
+                String.valueOf(mArticleId + 1));
 
-		String position = new String();
-		if(mArticleId == 0) {
+		String position;
+		if (mArticleId == 0) {
 			position = entry.id + " of " + mNumEntries + RIGHT_SWIPE;
-		} else if(mArticleId == mNumEntries - 1) {
+		} else if (mArticleId == mNumEntries - 1) {
 			position = LEFT_SWIPE + entry.id + " of " + mNumEntries;
 		} else {
 			position = LEFT_SWIPE + entry.id + " of " + mNumEntries + RIGHT_SWIPE;
 		}
 
 		mArticleNumber.setText(position);
-		mArticleDate.setText(entry.pubDate);
+		mArticleDate.setText(entry.publicationDate);
 		mArticleTitle.setText(entry.title);
 		mArticleAuthor.setText(entry.creator);
 		mArticleContent.setText(Html.fromHtml(entry.content, new Html.ImageGetter() {
 			
 			@Override
 			public Drawable getDrawable(String source) {
-				final Bitmap bitmap = PocketBitmapTask.getBitmapFromMemCache(source);
-				if(bitmap != null) {
+				final Bitmap bitmap =
+                        PocketBitmapTask.getBitmapFromMemCache(source);
+				if (bitmap != null) {
 					mArticleImage.setImageBitmap(bitmap);
 				} else {
-					if(PocketBitmapTask.cancelPotentialWork(source, mArticleImage)) {
-						final PocketBitmapTask task = new PocketBitmapTask(mArticleImage, source, 250, 250);
+					if (PocketBitmapTask.cancelPotentialWork(source,
+                            mArticleImage)) {
+						final PocketBitmapTask task =
+                                new PocketBitmapTask(mArticleImage, source, 250, 250);
 						final PocketBitmapDrawable bitmapDrawable =
-								new PocketBitmapDrawable(getResources(), BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher), task);
+								new PocketBitmapDrawable(
+                                        getResources(),
+                                        BitmapFactory.decodeResource(getResources(),
+                                                R.drawable.ic_launcher), task);
 						mArticleImage.setImageDrawable(bitmapDrawable);
 						task.execute(source);
 					}
@@ -96,6 +108,6 @@ public class ArticleFragment extends Fragment {
 		return view;
 	}
 	
-	//TODO OptionsMenu for add to saved stories, open in browser, and find in page
+	//TODO(jasonscott) OptionsMenu for add to saved stories, open in browser, and find in page
 
 }

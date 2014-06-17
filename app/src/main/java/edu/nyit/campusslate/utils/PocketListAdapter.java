@@ -3,6 +3,10 @@
  */
 package edu.nyit.campusslate.utils;
 
+import edu.nyit.campusslate.Entry;
+import edu.nyit.campusslate.R;
+import edu.nyit.campusslate.utils.PocketBitmapTask.PocketBitmapDrawable;
+
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -15,11 +19,10 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-import edu.nyit.campusslate.Entry;
-import edu.nyit.campusslate.R;
-import edu.nyit.campusslate.utils.PocketBitmapTask.PocketBitmapDrawable;
+
 /**
- * <p>Title: ArticleListAdapter.java</p>
+ * <p>Title: ArticleListAdapter.</p>
+ * <p>Description:</p>
  * @author jasonscott
  *
  */
@@ -35,7 +38,7 @@ public class PocketListAdapter extends BaseAdapter {
 	public PocketListAdapter(Activity activity, String table) {
 		mActivity = activity;
 		mTableName = table;
-		sInflater = (LayoutInflater)mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		sInflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		mPocketDbHelper = PocketDbHelper.getInstance(mActivity);
 	}
 
@@ -46,38 +49,43 @@ public class PocketListAdapter extends BaseAdapter {
 
 	@Override
 	public Entry getItem(int position) {
-		return mPocketDbHelper.retrieveEntry(mTableName, String.valueOf(position+1));
+		return mPocketDbHelper.retrieveEntry(mTableName, String.valueOf(position + 1));
 	}
 
 	@Override
 	public long getItemId(int position) {
-		return Long.valueOf(mPocketDbHelper.retrieveEntry(mTableName, String.valueOf(position+1)).id);
+		return Long.valueOf(mPocketDbHelper.retrieveEntry(mTableName, String.valueOf(position + 1)).id);
 	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		Entry entry = mPocketDbHelper.retrieveEntry(mTableName, String.valueOf(position+1));
-		if(convertView == null) {
+		Entry entry = mPocketDbHelper.retrieveEntry(mTableName, String.valueOf(position + 1));
+		if (convertView == null) {
 			convertView = sInflater.inflate(R.layout.article_list_row, null);
 		}
-		mImageView = (ImageView)convertView.findViewById(R.id.list_article_image);
-		mTitleView = (TextView)convertView.findViewById(R.id.list_article_title);
-		mDateView = (TextView)convertView.findViewById(R.id.list_article_date);
+
+		mImageView = (ImageView) convertView.findViewById(R.id.list_article_image);
+		mTitleView = (TextView) convertView.findViewById(R.id.list_article_title);
+		mDateView = (TextView) convertView.findViewById(R.id.list_article_date);
 
 		mTitleView.setText(entry.title);
-		mDateView.setText(entry.pubDate);
+		mDateView.setText(entry.publicationDate);
 		Html.fromHtml(entry.content, new Html.ImageGetter() {
 
 			@Override
 			public Drawable getDrawable(String source) {
 				final Bitmap bitmap = PocketBitmapTask.getBitmapFromMemCache(source);
-				if(bitmap != null) {
+				if (bitmap != null) {
 					mImageView.setImageBitmap(bitmap);
 				} else {
-					if(PocketBitmapTask.cancelPotentialWork(source, mImageView)) {
-						final PocketBitmapTask task = new PocketBitmapTask(mImageView, source, 250, 250);
-						final PocketBitmapDrawable bitmapDrawable =
-								new PocketBitmapDrawable(mActivity.getResources(), BitmapFactory.decodeResource(mActivity.getResources(), R.drawable.ic_launcher), task);
+					if (PocketBitmapTask.cancelPotentialWork(source, mImageView)) {
+						final PocketBitmapTask task =
+                                new PocketBitmapTask(mImageView, source, 250, 250);
+						final PocketBitmapDrawable bitmapDrawable = new PocketBitmapDrawable(
+                                        mActivity.getResources(),
+                                        BitmapFactory.decodeResource(mActivity.getResources(),
+                                        R.drawable.ic_launcher),
+                                        task);
 						mImageView.setImageDrawable(bitmapDrawable);
 						task.execute(source);
 					}
