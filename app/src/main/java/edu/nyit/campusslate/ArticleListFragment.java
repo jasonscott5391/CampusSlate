@@ -49,9 +49,10 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
     private String mSectionTitle;
     private Integer mCount = 0;
     private AggregatorTask mAsyncTask = new AggregatorTask();
-    private Long mLastRefresh = 0L;
+    private Long mLastRefresh;
     private static final long ONE_HOUR = 1000 * 60 * 60;
-    private boolean mRefreshing = false;
+    private static final long ONE_MINUTE = 1000 * 60;
+    private static final long FIFTEEN_MINUTES = 1000 * 60 * 15;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -67,12 +68,10 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
                 .getNumEntries(mSectionTitle.toLowerCase(Locale.US));
         if (mCount == 0) {
             mArticleHeaderText.setText("...PULL DOWN TO REFRESH...");
-            onRefresh();
         } else {
             mArticleHeaderText.setText("..." + mCount + " ARTICLES...");
             if (savedInstanceState != null) {
-                mLastRefresh = savedInstanceState.getLong("last_refresh");
-                Log.d("onCreate(): Last Time Refreshed", new Date(mLastRefresh).toString());
+                Log.d("onCreate() " + mSectionTitle + ": Last Time Refreshed", new Date(mLastRefresh).toString());
             }
         }
 
@@ -106,18 +105,24 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
     @Override
     public void onResume() {
         super.onResume();
-        mLastRefresh = getActivity().getPreferences(Context.MODE_PRIVATE).getLong("last_refresh", 0L);
-        mRefreshing = (System.currentTimeMillis() - mLastRefresh) > ONE_HOUR ? true : false;
-        Log.d("onResume(): Last Time Refreshed", new Date(mLastRefresh).toString());
+        SharedPreferences userPrefs = getActivity().getPreferences(Context.MODE_PRIVATE);
+        mLastRefresh = userPrefs.getLong("last_refresh_" + mSectionTitle, System.currentTimeMillis());
+        if (mLastRefresh != null && (System.currentTimeMillis() - mLastRefresh) > FIFTEEN_MINUTES) {
+            mSwipeRefresh.setRefreshing(true);
+            Log.d("onResume() " + mSectionTitle + ":", " setRefreshing(true)");
+        } else {
+            mLastRefresh = System.currentTimeMillis();
+        }
+        Log.d("onResume() " + mSectionTitle + ": Last Time Refreshed", new Date(mLastRefresh).toString());
     }
 
     @Override
     public void onPause() {
         super.onPause();
         SharedPreferences.Editor editor = getActivity().getPreferences(Context.MODE_PRIVATE).edit();
-        editor.putLong("last_refresh", System.currentTimeMillis());
+        editor.putLong("last_refresh_" + mSectionTitle, mLastRefresh);
         editor.commit();
-
+        Log.d("onPause()  " + mSectionTitle + ": ", new Date(mLastRefresh).toString());
     }
 
     @Override
@@ -180,7 +185,7 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
             mSwipeRefresh.setRefreshing(false);
             mListAdapter.notifyDataSetChanged();
             mLastRefresh = System.currentTimeMillis();
-            Log.d("onPostExecute(): Last Time Refreshed", new Date(mLastRefresh).toString());
+            Log.d("onPostExecute() " + mSectionTitle + ": Last Time Refreshed", new Date(mLastRefresh).toString());
         }
 
         @Override
