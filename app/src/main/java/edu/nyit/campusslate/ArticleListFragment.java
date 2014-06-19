@@ -105,8 +105,6 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
             mSwipeRefresh.setRefreshing(true);
             mArticleHeaderText.setText(UPDATE);
             Log.d("onResume() " + mSectionTitle + ":", " setRefreshing(true)");
-        } else {
-            mLastRefresh = System.currentTimeMillis();
         }
         Log.d("onResume() " + mSectionTitle + ": Last Time Refreshed", new Date(mLastRefresh).toString());
     }
