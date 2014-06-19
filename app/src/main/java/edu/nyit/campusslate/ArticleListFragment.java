@@ -40,7 +40,9 @@ import java.util.Locale;
  */
 public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
-    //TODO(jasonscott) Better use of logcat to figure out the refresh rate.
+    private static final long FIFTEEN_MINUTES = 1000 * 60 * 15;
+    private static final String UPDATE = "...UPDATING...";
+
     private SwipeRefreshLayout mSwipeRefresh;
     private ListView mArticleList;
     private PocketListAdapter mListAdapter;
@@ -50,9 +52,7 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
     private Integer mCount = 0;
     private AggregatorTask mAsyncTask = new AggregatorTask();
     private Long mLastRefresh;
-    private static final long ONE_HOUR = 1000 * 60 * 60;
-    private static final long ONE_MINUTE = 1000 * 60;
-    private static final long FIFTEEN_MINUTES = 1000 * 60 * 15;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -66,15 +66,9 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
         mArticleHeaderText = (TextView) mArticleHeader.findViewById(R.id.article_count);
         mCount = PocketDbHelper.getInstance(getActivity())
                 .getNumEntries(mSectionTitle.toLowerCase(Locale.US));
-        if (mCount == 0) {
-            mArticleHeaderText.setText("...PULL DOWN TO REFRESH...");
-        } else {
-            mArticleHeaderText.setText("..." + mCount + " ARTICLES...");
-            if (savedInstanceState != null) {
-                Log.d("onCreate() " + mSectionTitle + ": Last Time Refreshed", new Date(mLastRefresh).toString());
-            }
+        if (mLastRefresh != null && mCount != 0) {
+            mArticleHeaderText.setText("Last Update on " + new Date(mLastRefresh).toString());
         }
-
     }
 
     @Override
@@ -109,6 +103,7 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
         mLastRefresh = userPrefs.getLong("last_refresh_" + mSectionTitle, System.currentTimeMillis());
         if (mLastRefresh != null && (System.currentTimeMillis() - mLastRefresh) > FIFTEEN_MINUTES) {
             mSwipeRefresh.setRefreshing(true);
+            mArticleHeaderText.setText(UPDATE);
             Log.d("onResume() " + mSectionTitle + ":", " setRefreshing(true)");
         } else {
             mLastRefresh = System.currentTimeMillis();
@@ -156,7 +151,7 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
 
         @Override
         protected void onPreExecute() {
-            mArticleHeaderText.setText("...UPDATING...");
+            mArticleHeaderText.setText(UPDATE);
         }
 
         @Override
