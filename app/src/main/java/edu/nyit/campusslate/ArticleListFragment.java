@@ -100,8 +100,8 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
     public void onResume() {
         super.onResume();
         SharedPreferences userPrefs = getActivity().getPreferences(Context.MODE_PRIVATE);
-        mLastRefresh = userPrefs.getLong("last_refresh_" + mSectionTitle, System.currentTimeMillis());
-        if (mLastRefresh != null && (System.currentTimeMillis() - mLastRefresh) > FIFTEEN_MINUTES) {
+        mLastRefresh = userPrefs.getLong("last_refresh_" + mSectionTitle, 0L);
+        if ((System.currentTimeMillis() - mLastRefresh) > FIFTEEN_MINUTES) {
             mSwipeRefresh.setRefreshing(true);
             mArticleHeaderText.setText(UPDATE);
             Log.d("onResume() " + mSectionTitle + ":", " setRefreshing(true)");
