@@ -15,7 +15,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -102,26 +101,22 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
         SharedPreferences userPrefs = getActivity().getPreferences(Context.MODE_PRIVATE);
         mLastRefresh = userPrefs.getLong("last_refresh_" + mSectionTitle, 0L);
         if ((System.currentTimeMillis() - mLastRefresh) > FIFTEEN_MINUTES) {
-            mSwipeRefresh.setRefreshing(true);
+            onRefresh();
             mArticleHeaderText.setText(UPDATE);
-            Log.d("onResume() " + mSectionTitle + ":", " setRefreshing(true)");
         }
-        Log.d("onResume() " + mSectionTitle + ": Last Time Refreshed", new Date(mLastRefresh).toString());
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        SharedPreferences.Editor editor = getActivity().getPreferences(Context.MODE_PRIVATE).edit();
-        editor.putLong("last_refresh_" + mSectionTitle, mLastRefresh);
-        editor.commit();
-        Log.d("onPause()  " + mSectionTitle + ": ", new Date(mLastRefresh).toString());
+        //TODO(jasonscott) Save page state.
     }
 
     @Override
     public void onRefresh() {
         if (mAsyncTask.getStatus() != AsyncTask.Status.RUNNING) {
             mAsyncTask.execute(mSectionTitle.toLowerCase(Locale.US));
+            mSwipeRefresh.setRefreshing(true);
         }
     }
 
@@ -169,6 +164,7 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
 
         @Override
         protected void onProgressUpdate(Integer... progress) {
+
         }
 
         @Override
@@ -178,7 +174,9 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
             mSwipeRefresh.setRefreshing(false);
             mListAdapter.notifyDataSetChanged();
             mLastRefresh = System.currentTimeMillis();
-            Log.d("onPostExecute() " + mSectionTitle + ": Last Time Refreshed", new Date(mLastRefresh).toString());
+            SharedPreferences.Editor editor = getActivity().getPreferences(Context.MODE_PRIVATE).edit();
+            editor.putLong("last_refresh_" + mSectionTitle, mLastRefresh);
+            editor.commit();
         }
 
         @Override

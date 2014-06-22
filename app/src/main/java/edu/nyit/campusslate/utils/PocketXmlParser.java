@@ -87,6 +87,7 @@ public class PocketXmlParser {
                                     bookmarked);
 
                             if (addEntry(entry, context, section) != -1) {
+                                Log.d("Parser parse()", "Article # " + count + " added!");
                                 count++;
                             } else {
                                 //TODO(jasonscott) Handle error inserting database
