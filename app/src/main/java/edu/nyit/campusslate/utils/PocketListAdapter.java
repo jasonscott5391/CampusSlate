@@ -20,6 +20,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 /**
@@ -36,12 +37,14 @@ public class PocketListAdapter extends BaseAdapter {
     private ImageView mImageView;
     private TextView mTitleView;
     private TextView mDateView;
+    private ArrayList<Entry> mEntries;
 
     public PocketListAdapter(Activity activity, String table) {
         mActivity = activity;
         mTableName = table;
         sInflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mPocketDbHelper = PocketDbHelper.getInstance(mActivity);
+        mEntries = mPocketDbHelper.retrieveTable(table);
     }
 
     @Override
@@ -51,17 +54,19 @@ public class PocketListAdapter extends BaseAdapter {
 
     @Override
     public Entry getItem(int position) {
-        return mPocketDbHelper.retrieveEntry(mTableName, String.valueOf(position + 1));
+        //return mPocketDbHelper.retrieveEntry(mTableName, String.valueOf(position + 1));
+        return mEntries.get(position);
     }
 
     @Override
     public long getItemId(int position) {
-        return Long.valueOf(mPocketDbHelper.retrieveEntry(mTableName, String.valueOf(position + 1)).id);
+//        return Long.valueOf(mPocketDbHelper.retrieveEntry(mTableName, String.valueOf(position + 1)).id);
+        return Long.valueOf(mEntries.get(position).id);
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        Entry entry = mPocketDbHelper.retrieveEntry(mTableName, String.valueOf(position + 1));
+        Entry entry = mEntries.get(position);
         if (convertView == null) {
             convertView = sInflater.inflate(R.layout.article_list_row, null);
         }

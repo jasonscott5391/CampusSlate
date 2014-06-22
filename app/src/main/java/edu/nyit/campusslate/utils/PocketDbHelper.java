@@ -167,7 +167,6 @@ public class PocketDbHelper extends SQLiteOpenHelper {
             } while (cursor.moveToNext());
             cursor.close();
         }
-        //db.close();
 
         return entry;
     }
@@ -179,9 +178,33 @@ public class PocketDbHelper extends SQLiteOpenHelper {
      * @return
      */
     public ArrayList<Entry> retrieveTable(String table) {
-        ArrayList<Entry> arrayList = new ArrayList<Entry>();
-
-        return arrayList;
+        ArrayList<Entry> entries = new ArrayList<Entry>();
+        Cursor cursor = getReadableDatabase().query(
+                table,
+                null,
+                null,
+                null,
+                null,
+                null,
+                SlateEntry.COLUMN_NAMES[SlateEntry.PUB_DATE] + " DESC");
+        if (cursor.moveToFirst()) {
+            do {
+                entries.add(new Entry(
+                        cursor.getString(0),    // Identifier
+                        cursor.getString(1),    // Title
+                        cursor.getString(2),    // Link
+                        cursor.getString(3),    // Publication Date
+                        cursor.getString(4),    // Creator
+                        cursor.getString(5),    // Category
+                        cursor.getString(6),    // Description
+                        cursor.getString(7),    // Content
+                        cursor.getString(8),    // Image URL
+                        cursor.getString(9)     // Bookmarked
+                ));
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        return entries;
     }
 
     //TODO(jasonscott) deleteEntry

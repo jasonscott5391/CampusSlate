@@ -51,6 +51,7 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
     private Integer mCount = 0;
     private AggregatorTask mAsyncTask = new AggregatorTask();
     private Long mLastRefresh;
+    private SharedPreferences.Editor mEditor;
 
 
     @Override
@@ -65,9 +66,7 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
         mArticleHeaderText = (TextView) mArticleHeader.findViewById(R.id.article_count);
         mCount = PocketDbHelper.getInstance(getActivity())
                 .getNumEntries(mSectionTitle.toLowerCase(Locale.US));
-        if (mLastRefresh != null && mCount != 0) {
-            mArticleHeaderText.setText("Last Update on " + new Date(mLastRefresh).toString());
-        }
+        mEditor = getActivity().getPreferences(Context.MODE_PRIVATE).edit();
     }
 
     @Override
@@ -103,6 +102,8 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
         if ((System.currentTimeMillis() - mLastRefresh) > FIFTEEN_MINUTES) {
             onRefresh();
             mArticleHeaderText.setText(UPDATE);
+        } else {
+            mArticleHeaderText.setText("Last Update on " + new Date(mLastRefresh).toString());
         }
     }
 
@@ -174,9 +175,9 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
             mSwipeRefresh.setRefreshing(false);
             mListAdapter.notifyDataSetChanged();
             mLastRefresh = System.currentTimeMillis();
-            SharedPreferences.Editor editor = getActivity().getPreferences(Context.MODE_PRIVATE).edit();
-            editor.putLong("last_refresh_" + mSectionTitle, mLastRefresh);
-            editor.commit();
+
+            mEditor.putLong("last_refresh_" + mSectionTitle, mLastRefresh);
+            mEditor.commit();
         }
 
         @Override
