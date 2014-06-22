@@ -28,7 +28,6 @@ public class PocketDbHelper extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "CampusSlate.db";
     private static final String TEXT_TYPE = " TEXT";
     private static final String COMMA_SEP = ",";
-    //private static final String SQL_DELETE_ENTRIES = "DROP TABLE IF EXISTS ";
     private static final String SQL_CREATE_ENTRIES =
             " (" +
                     SlateEntry._ID + " INTEGER PRIMARY KEY," +
@@ -106,31 +105,7 @@ public class PocketDbHelper extends SQLiteOpenHelper {
         values.put(SlateEntry.COLUMN_NAMES[SlateEntry.BOOKMARKED], entry.bookmarked);
 
         long inserted = db.insert(table, null, values);
-        //db.close();
-        //Log.d("db.insert() returns ", String.valueOf(inserted));
         return inserted;
-    }
-
-    /**
-     * Updates a specified column of a specified entry of a specified table
-     * in the database.
-     *
-     * @param table  - table of database to find entry
-     * @param column - column of entry to be updated
-     * @param value  - new text to be stored in column of entry
-     * @param id     - entries identifier
-     */
-    public int updateEntry(String table, String column, String value, String id) {
-        SQLiteDatabase db = getWritableDatabase();
-
-        ContentValues values = new ContentValues();
-        values.put(column, value);
-
-        String selection = SlateEntry._ID + " = ?";
-        String[] selectionArgs = {String.valueOf(id)};
-
-        return db.update(table, values, selection, selectionArgs);
-
     }
 
     /**
@@ -205,40 +180,6 @@ public class PocketDbHelper extends SQLiteOpenHelper {
             cursor.close();
         }
         return entries;
-    }
-
-    //TODO(jasonscott) deleteEntry
-
-    /**
-     * Deletes an entry from the database.
-     *
-     * @param table - entry's table name
-     * @param id    - entry's id
-     * @return int, number of rows affected
-     */
-    public int deleteEntry(String table, String id) {
-        //TODO(jasonscott) Algorithm to correct _ID column for unaffected rows
-        SQLiteDatabase db = getWritableDatabase();
-
-        String selection = SlateEntry._ID + " = ?";
-        String[] selectionArgs = {String.valueOf(id)};
-
-        return db.delete(table, selection, selectionArgs);
-
-    }
-
-    public void correctEntries(String table, String id) {
-        //long size = DatabaseUtils.queryNumEntries(getReadableDatabase(), table);
-        //long affectedRows = size - Long.valueOf(id);
-
-
-    }
-
-    //TODO(jasonscott) searchEntries
-
-    public Cursor searchEntries(String query) {
-        Cursor cursor = null;
-        return cursor;
     }
 
     /**
