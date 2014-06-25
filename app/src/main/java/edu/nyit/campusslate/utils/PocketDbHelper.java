@@ -24,6 +24,7 @@ import java.util.ArrayList;
 public class PocketDbHelper extends SQLiteOpenHelper {
 
     private static PocketDbHelper sInstance = null;
+    private SQLiteDatabase mDatabase;
     public static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "CampusSlate.db";
     private static final String TEXT_TYPE = " TEXT";
@@ -52,7 +53,6 @@ public class PocketDbHelper extends SQLiteOpenHelper {
         if (sInstance == null) {
             sInstance = new PocketDbHelper(c.getApplicationContext());
         }
-
         return sInstance;
     }
 
@@ -64,14 +64,16 @@ public class PocketDbHelper extends SQLiteOpenHelper {
      */
     private PocketDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        getWritableDatabase();
     }
 
     // Overridden methods
 
     @Override
     public void onCreate(SQLiteDatabase db) {
+        mDatabase = db;
         for (String table : SlateEntry.TABLE_NAMES) {
-            db.execSQL("CREATE TABLE " + table + SQL_CREATE_ENTRIES);
+            mDatabase.execSQL("CREATE TABLE " + table + SQL_CREATE_ENTRIES);
         }
     }
 
@@ -91,7 +93,6 @@ public class PocketDbHelper extends SQLiteOpenHelper {
      * @return the row ID of entry inserted
      */
     public long insertEntry(Entry entry, String table) {
-        SQLiteDatabase db = getWritableDatabase();
         ContentValues values = new ContentValues();
 
         values.put(SlateEntry.COLUMN_NAMES[SlateEntry.TITLE], entry.title);
@@ -104,7 +105,7 @@ public class PocketDbHelper extends SQLiteOpenHelper {
         values.put(SlateEntry.COLUMN_NAMES[SlateEntry.IMAGE_URL], entry.imageUrl);
         values.put(SlateEntry.COLUMN_NAMES[SlateEntry.BOOKMARKED], entry.bookmarked);
 
-        long inserted = db.insert(table, null, values);
+        long inserted = mDatabase.insert(table, null, values);
         return inserted;
     }
 
@@ -116,14 +117,13 @@ public class PocketDbHelper extends SQLiteOpenHelper {
      * @return Entry
      */
     public Entry retrieveEntry(String table, String id) {
-        SQLiteDatabase db = getReadableDatabase();
 
         Entry entry = null;
 
         String selection = SlateEntry._ID + " = ?";
         String[] selectionArgs = {String.valueOf(id)};
 
-        Cursor cursor = db.query(table, null, selection, selectionArgs, null, null, null);
+        Cursor cursor = mDatabase.query(table, null, selection, selectionArgs, null, null, null);
 
         if (cursor.moveToFirst()) {
             do {
@@ -154,32 +154,36 @@ public class PocketDbHelper extends SQLiteOpenHelper {
      */
     public ArrayList<Entry> retrieveTable(String table) {
         ArrayList<Entry> entries = new ArrayList<Entry>();
-        Cursor cursor = getReadableDatabase().query(
-                table,
-                null,
-                null,
-                null,
-                null,
-                null,
-                SlateEntry.COLUMN_NAMES[SlateEntry.PUB_DATE] + " DESC");
-        if (cursor.moveToFirst()) {
-            do {
-                entries.add(new Entry(
-                        cursor.getString(0),    // Identifier
-                        cursor.getString(1),    // Title
-                        cursor.getString(2),    // Link
-                        cursor.getString(3),    // Publication Date
-                        cursor.getString(4),    // Creator
-                        cursor.getString(5),    // Category
-                        cursor.getString(6),    // Description
-                        cursor.getString(7),    // Content
-                        cursor.getString(8),    // Image URL
-                        cursor.getString(9)     // Bookmarked
-                ));
-            } while (cursor.moveToNext());
-            cursor.close();
+        if (mDatabase != null) {
+            Cursor cursor = mDatabase.query(
+                    table,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    SlateEntry.COLUMN_NAMES[SlateEntry.PUB_DATE] + " DESC");
+
+            if (cursor.moveToFirst()) {
+                do {
+                    entries.add(new Entry(
+                            cursor.getString(0),    // Identifier
+                            cursor.getString(1),    // Title
+                            cursor.getString(2),    // Link
+                            cursor.getString(3),    // Publication Date
+                            cursor.getString(4),    // Creator
+                            cursor.getString(5),    // Category
+                            cursor.getString(6),    // Description
+                            cursor.getString(7),    // Content
+                            cursor.getString(8),    // Image URL
+                            cursor.getString(9)     // Bookmarked
+                    ));
+                } while (cursor.moveToNext());
+                cursor.close();
+            }
+            return entries;
         }
-        return entries;
+        return null;
     }
 
     /**
@@ -189,6 +193,6 @@ public class PocketDbHelper extends SQLiteOpenHelper {
      * @return int - Number of entries.
      */
     public int getNumEntries(String table) {
-        return (int) DatabaseUtils.queryNumEntries(getReadableDatabase(), table);
+        return (int) DatabaseUtils.queryNumEntries(mDatabase, table);
     }
 }
