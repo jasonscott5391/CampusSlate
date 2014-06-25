@@ -25,7 +25,6 @@ import java.util.Date;
  * @author jasonscott
  */
 public class PocketXmlParser {
-
     //TODO(jasonscott) parseBuildDate - static method to retrieve build date from xml feed
 
     /**
@@ -38,6 +37,7 @@ public class PocketXmlParser {
      * @return boolean for the success or failure of parsing
      */
     public static Integer parse(InputStream in, Context context, String section) {
+        PocketDbHelper dbHelper = PocketDbHelper.getInstance(context);
         Integer count = 0;
         Entry entry;
 
@@ -86,7 +86,7 @@ public class PocketXmlParser {
                                     imageUrl,
                                     bookmarked);
 
-                            if (addEntry(entry, context, section) != -1) {
+                            if (addEntry(dbHelper, entry, context, section) != -1) {
                                 Log.d("Parser parse()", "Article # " + count + " added to " + section + "!");
                                 count++;
                             } else {
@@ -140,8 +140,8 @@ public class PocketXmlParser {
      * @param section - String for the specific section RSS feed.
      * @return long for row ID of inserted Entry or -1 if error occurred
      */
-    private static long addEntry(Entry entry, Context context, String section) {
-        return PocketDbHelper.getInstance(context).insertEntry(entry, section);
+    private static long addEntry(PocketDbHelper dbHelper, Entry entry, Context context, String section) {
+        return dbHelper.insertEntry(entry, section);
 
     }
 
