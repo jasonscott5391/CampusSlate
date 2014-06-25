@@ -48,7 +48,6 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
     private View mArticleHeader;
     private TextView mArticleHeaderText;
     private String mSectionTitle;
-    private Integer mCount = 0;
     private AggregatorTask mAsyncTask = new AggregatorTask();
     private Long mLastRefresh;
     private SharedPreferences.Editor mEditor;
@@ -64,8 +63,6 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
                 .inflate(R.layout.article_list_header, null, true);
 
         mArticleHeaderText = (TextView) mArticleHeader.findViewById(R.id.article_count);
-        mCount = PocketDbHelper.getInstance(getActivity())
-                .getNumEntries(mSectionTitle.toLowerCase(Locale.US));
         mEditor = getActivity().getPreferences(Context.MODE_PRIVATE).edit();
     }
 
@@ -115,6 +112,7 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
 
     @Override
     public void onRefresh() {
+        AsyncTask.Status status = mAsyncTask.getStatus();
         if (mAsyncTask.getStatus() != AsyncTask.Status.RUNNING) {
             mAsyncTask.execute(mSectionTitle.toLowerCase(Locale.US));
             mSwipeRefresh.setRefreshing(true);
@@ -150,17 +148,19 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
 
         @Override
         protected Integer doInBackground(String... strs) {
-
+            Integer count = -1;
             try {
-                return downloadXml(new URL(SlateEntry.URL + strs[0] + "/feed"),
-                        strs[0]);
+                count = downloadXml(new URL(SlateEntry.URL + strs[0] + "/feed"), strs[0]);
+                if (count == -1) {
+                    this.cancel(true);
+                }
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
-            return -1;
+            return count;
         }
 
         @Override
@@ -170,8 +170,7 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
 
         @Override
         protected void onPostExecute(Integer result) {
-            mCount += result;
-            mArticleHeaderText.setText("..." + mCount + " ARTICLES...");
+            mArticleHeaderText.setText("..." + result + " ARTICLES...");
             mSwipeRefresh.setRefreshing(false);
             mListAdapter.notifyDataSetChanged();
             mLastRefresh = System.currentTimeMillis();
@@ -182,7 +181,7 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
 
         @Override
         protected void onCancelled(Integer result) {
-
+            onRefresh();
         }
 
         /**
