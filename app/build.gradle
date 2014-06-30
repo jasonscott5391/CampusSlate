@@ -1,13 +1,13 @@
 apply plugin: 'android'
 
 android {
-    compileSdkVersion 19
-    buildToolsVersion "19.1.0"
+    compileSdkVersion 'android-L'
+    buildToolsVersion '20.0.0'
 
     defaultConfig {
         applicationId "edu.nyit.campusslate"
-        minSdkVersion 15
-        targetSdkVersion 19
+        minSdkVersion 18
+        targetSdkVersion 20
     }
 
     buildTypes {
