@@ -111,8 +111,7 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
 
     @Override
     public void onRefresh() {
-        if (mAsyncTask.getStatus() != AsyncTask.Status.RUNNING
-                && mAsyncTask.getStatus() != AsyncTask.Status.PENDING) {
+        if (mAsyncTask.getStatus() != AsyncTask.Status.RUNNING) {
             mAsyncTask.execute(mSectionTitle.toLowerCase(Locale.US));
             mSwipeRefresh.setRefreshing(true);
         }
