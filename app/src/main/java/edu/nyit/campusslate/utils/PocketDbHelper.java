@@ -146,8 +146,6 @@ public class PocketDbHelper extends SQLiteOpenHelper {
         return entry;
     }
 
-    //TODO(jasonscott) retrieveTable using ORDER BY date DESC
-
     /**
      * @param table
      * @return

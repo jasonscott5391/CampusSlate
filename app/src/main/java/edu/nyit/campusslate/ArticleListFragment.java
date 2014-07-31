@@ -3,7 +3,6 @@
  */
 package edu.nyit.campusslate;
 
-import edu.nyit.campusslate.utils.PocketDbHelper;
 import edu.nyit.campusslate.utils.PocketListAdapter;
 import edu.nyit.campusslate.utils.PocketReaderContract.SlateEntry;
 import edu.nyit.campusslate.utils.PocketXmlParser;
@@ -33,7 +32,6 @@ import java.util.Locale;
 
 /**
  * <p>Title: ArticleListFragment.</p>
- * <p>Description:  wwwww</p>
  *
  * @author jasonscott
  */
@@ -83,7 +81,7 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
 
         mSwipeRefresh = (SwipeRefreshLayout) view.findViewById(R.id.swipe_refresh);
         mSwipeRefresh.setOnRefreshListener(this);
-        mSwipeRefresh.setColorScheme(R.color.nyit_yellow,
+        mSwipeRefresh.setColorSchemeResources(R.color.nyit_yellow,
                 R.color.nyit_blue,
                 R.color.nyit_blue,
                 R.color.nyit_yellow);
@@ -96,6 +94,7 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
         super.onResume();
         SharedPreferences userPrefs = getActivity().getPreferences(Context.MODE_PRIVATE);
         mLastRefresh = userPrefs.getLong("last_refresh_" + mSectionTitle, 0L);
+
         if ((System.currentTimeMillis() - mLastRefresh) > FIFTEEN_MINUTES) {
             onRefresh();
             mArticleHeaderText.setText(UPDATE);
@@ -112,8 +111,8 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
 
     @Override
     public void onRefresh() {
-        AsyncTask.Status status = mAsyncTask.getStatus();
-        if (mAsyncTask.getStatus() != AsyncTask.Status.RUNNING) {
+        if (mAsyncTask.getStatus() != AsyncTask.Status.RUNNING
+                && mAsyncTask.getStatus() != AsyncTask.Status.PENDING) {
             mAsyncTask.execute(mSectionTitle.toLowerCase(Locale.US));
             mSwipeRefresh.setRefreshing(true);
         }

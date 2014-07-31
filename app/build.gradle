@@ -1,8 +1,11 @@
 apply plugin: 'android'
 
 android {
-    compileSdkVersion 'android-L'
+    //compileSdkVersion 'android-L'
+
+    compileSdkVersion 20
     buildToolsVersion '20.0.0'
+
 
     defaultConfig {
         applicationId "edu.nyit.campusslate"
@@ -19,5 +22,5 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:+'
+    compile 'com.android.support:support-v4:20.0.0'
 }
