@@ -174,10 +174,12 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
             mEditor.putLong("last_refresh_" + mSectionTitle, mLastRefresh);
             mEditor.commit();
             mListAdapter.notifyDataSetChanged();
+            mAsyncTask = null;
         }
 
         @Override
         protected void onCancelled(Integer result) {
+            mAsyncTask = null;
             onRefresh();
         }
 
@@ -205,6 +207,5 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
             conn.connect();
             return conn.getInputStream();
         }
-
     }
 }
