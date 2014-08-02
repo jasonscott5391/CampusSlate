@@ -3,12 +3,12 @@
  */
 package edu.nyit.campusslate.utils;
 
-import android.content.Context;
-import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.text.Html.ImageGetter;
-import android.view.View;
+import android.widget.TextView;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,57 +22,53 @@ import java.net.URL;
  * @author jasonscott
  */
 public class PocketImageGetter implements ImageGetter {
-    private Context mContext;
-    private View mView;
-    private Drawable mDrawable;
-    private int mResId;
+    private TextView mView;
 
-    public PocketImageGetter(Context c, View v, int r) {
-        mContext = c;
+    public PocketImageGetter(TextView v) {
         mView = v;
-        mDrawable = null;
-        mResId = r;
+
     }
 
     @Override
     public Drawable getDrawable(String source) {
-        ImageGetterAsyncTask imageGetter = new ImageGetterAsyncTask();
+        PocketDrawable drawable = new PocketDrawable();
+        ImageGetterAsyncTask imageGetter = new ImageGetterAsyncTask(drawable);
 
         imageGetter.execute(source);
 
-        return mDrawable;
+        return drawable;
     }
 
     private class ImageGetterAsyncTask extends AsyncTask<String, Void, Drawable> {
-        private Drawable drawable;
+        private PocketDrawable pocketDrawable;
 
-        public ImageGetterAsyncTask() {
-
+        public ImageGetterAsyncTask(PocketDrawable d) {
+            pocketDrawable = d;
         }
-
-        @Override
-        protected void onPreExecute() {
-            // TODO (jasonscott) Something before background work.
-            mDrawable = mContext.getResources().getDrawable(mResId);
-        }
-
 
         @Override
         protected Drawable doInBackground(String... params) {
-            try {
-                drawable = Drawable.createFromStream(downloadUrl(params[0]), "src");
-            } catch(IOException e) {
-                //TODO (jasonscott) Handle IOExceptions.
-                drawable = null;
-            }
-
-            return drawable;
+            return downloadDrawable(params[0]);
         }
 
         @Override
         protected void onPostExecute(Drawable result) {
-            mDrawable = result;
+            pocketDrawable.setBounds(0, 0, 0 + result.getIntrinsicWidth(), 0 + result.getIntrinsicHeight());
+            pocketDrawable.drawable = result;
             mView.invalidate();
+
+            mView.setHeight((mView.getHeight() + result.getIntrinsicHeight()));
+        }
+
+        private Drawable downloadDrawable(String url) {
+            try {
+                InputStream is = downloadUrl(url);
+                Drawable drawable = Drawable.createFromStream(is, "src");
+                drawable.setBounds(0, 0, 0 + drawable.getIntrinsicWidth(), 0 + drawable.getIntrinsicHeight());
+                return drawable;
+            } catch(IOException e) {
+                return null;
+            }
         }
 
         private InputStream downloadUrl(String stringUrl) throws IOException {
@@ -85,6 +81,17 @@ public class PocketImageGetter implements ImageGetter {
             conn.connect();
             return conn.getInputStream();
 
+        }
+    }
+
+    public class PocketDrawable extends BitmapDrawable {
+        protected Drawable drawable;
+
+        @Override
+        public void draw(Canvas canvas) {
+            if(drawable != null) {
+                drawable.draw(canvas);
+            }
         }
     }
 }
