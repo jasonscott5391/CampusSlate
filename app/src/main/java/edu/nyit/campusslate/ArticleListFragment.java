@@ -173,6 +173,7 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
             mLastRefresh = System.currentTimeMillis();
             mEditor.putLong("last_refresh_" + mSectionTitle, mLastRefresh);
             mEditor.commit();
+            mListAdapter.notifyDataSetChanged();
         }
 
         @Override
