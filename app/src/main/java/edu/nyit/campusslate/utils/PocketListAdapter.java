@@ -35,6 +35,9 @@ public class PocketListAdapter extends BaseAdapter {
     private static PocketDbHelper mPocketDbHelper;
     private PocketImageGetter mImageGetter;
     private String mTableName;
+    private TextView mTitleView;
+    private TextView mAuthorView;
+    private TextView mDateView;
     private TextView mContentView;
 
     public PocketListAdapter(Activity activity, String table) {
@@ -69,10 +72,16 @@ public class PocketListAdapter extends BaseAdapter {
             convertView = sInflater.inflate(R.layout.article_list_row, null);
         }
 
+        mTitleView = (TextView) convertView.findViewById(R.id.content_title);
+        mAuthorView = (TextView) convertView.findViewById(R.id.content_author);
+        mDateView = (TextView) convertView.findViewById(R.id.content_date);
         mContentView = (TextView) convertView.findViewById(R.id.content_view);
 
         mImageGetter = new PocketImageGetter(mContentView);
 
+        mTitleView.setText(entry.title);
+        mAuthorView.setText(entry.creator);
+        mDateView.setText(new Date(Long.valueOf(entry.publicationDate)).toString());
         mContentView.setText(Html.fromHtml(entry.content, mImageGetter, null));
 
         return convertView;
