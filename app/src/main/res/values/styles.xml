@@ -1,0 +1,41 @@
+<resources>
+
+    <!--
+        Base application theme, dependent on API level. This theme is replaced
+        by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
+    -->
+    <style name="AppBaseTheme" parent="android:Theme.Light">
+        <!--
+            Theme customizations available in newer API levels can go in
+            res/values-vXX/styles.xml, while customizations related to
+            backward-compatibility can go here.
+        -->
+    </style>
+
+    <!-- Application theme. -->
+    <style name="AppTheme" parent="AppBaseTheme">
+        <item name="android:actionBarStyle">@style/MyActionBar.Solid</item>
+        <item name="android:actionBarTabTextStyle">@style/MyActionBarTabText</item>
+        <item name="android:actionBarTabStyle">@style/MyActionBarTabView</item>
+        <item name="android:actionModeBackground">@drawable/cab_background_top</item>
+        <item name="android:actionModeSplitBackground">@drawable/cab_background_bottom</item>
+    </style>
+
+
+    <!-- ActionBar tabs text styles -->
+    <style name="MyActionBarTabText" parent="@android:style/Widget.Holo.ActionBar.TabText">
+        <item name="android:textColor">#FFFFFF</item>
+    </style>
+
+    <style name="MyActionBarTabView" parent="@android:style/Widget.Holo.ActionBar.TabView">
+        <!-- tab indicator -->
+        <item name="android:background">@drawable/actionbar_tab_indicator</item>
+    </style>
+    
+        <style name="MyActionBar.Solid" parent="@android:style/Widget.Holo.Light.ActionBar.Solid">
+        <item name="android:background">@drawable/ab_solid</item>
+        <item name="android:backgroundStacked">@drawable/ab_stacked_solid</item>
+        <item name="android:backgroundSplit">@drawable/ab_bottom_solid</item>
+    </style>
+
+</resources>
