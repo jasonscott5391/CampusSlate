@@ -26,7 +26,6 @@ public class PocketDbHelper extends SQLiteOpenHelper {
     private static PocketDbHelper sInstance = null;
     private SQLiteDatabase mDatabase;
     public static final int DATABASE_VERSION = 1;
-    public static final String DATABASE_NAME = "CampusSlate.db";
     private static final String TEXT_TYPE = " TEXT";
     private static final String COMMA_SEP = ",";
     private static final String SQL_CREATE_ENTRIES =
@@ -63,7 +62,7 @@ public class PocketDbHelper extends SQLiteOpenHelper {
      * @param context
      */
     private PocketDbHelper(Context context) {
-        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        super(context, SlateEntry.DATABASE_NAME, null, DATABASE_VERSION);
         getWritableDatabase();
     }
 
@@ -86,27 +85,32 @@ public class PocketDbHelper extends SQLiteOpenHelper {
     // Database Table operations
 
     /**
-     * Inserts an Entry into a table of the database.
+     * Inserts a collection of Entries into a table of the database.
      *
-     * @param entry - Entry to be inserted
-     * @param table - String for table to insert
-     * @return the row ID of entry inserted
+     * @param entries - ArrayList of type Entry to be inserted.
+     * @param table - String for table to insert.
+     * @return number of rows inserted.
      */
-    public long insertEntry(Entry entry, String table) {
-        ContentValues values = new ContentValues();
+    public int insertEntries(ArrayList<Entry> entries, String table) {
+        int count = 0;
+        for (Entry entry : entries) {
+            ContentValues values = new ContentValues();
 
-        values.put(SlateEntry.COLUMN_NAMES[SlateEntry.TITLE], entry.title);
-        values.put(SlateEntry.COLUMN_NAMES[SlateEntry.LINK], entry.link);
-        values.put(SlateEntry.COLUMN_NAMES[SlateEntry.PUB_DATE], entry.publicationDate);
-        values.put(SlateEntry.COLUMN_NAMES[SlateEntry.CREATOR], entry.creator);
-        values.put(SlateEntry.COLUMN_NAMES[SlateEntry.CATEGORY], entry.category);
-        values.put(SlateEntry.COLUMN_NAMES[SlateEntry.DESCRIPTION], entry.description);
-        values.put(SlateEntry.COLUMN_NAMES[SlateEntry.CONTENT], entry.content);
-        values.put(SlateEntry.COLUMN_NAMES[SlateEntry.IMAGE_URL], entry.imageUrl);
-        values.put(SlateEntry.COLUMN_NAMES[SlateEntry.BOOKMARKED], entry.bookmarked);
+            values.put(SlateEntry.COLUMN_NAMES[SlateEntry.TITLE], entry.title);
+            values.put(SlateEntry.COLUMN_NAMES[SlateEntry.LINK], entry.link);
+            values.put(SlateEntry.COLUMN_NAMES[SlateEntry.PUB_DATE], entry.publicationDate);
+            values.put(SlateEntry.COLUMN_NAMES[SlateEntry.CREATOR], entry.creator);
+            values.put(SlateEntry.COLUMN_NAMES[SlateEntry.CATEGORY], entry.category);
+            values.put(SlateEntry.COLUMN_NAMES[SlateEntry.DESCRIPTION], entry.description);
+            values.put(SlateEntry.COLUMN_NAMES[SlateEntry.CONTENT], entry.content);
+            values.put(SlateEntry.COLUMN_NAMES[SlateEntry.IMAGE_URL], entry.imageUrl);
+            values.put(SlateEntry.COLUMN_NAMES[SlateEntry.BOOKMARKED], entry.bookmarked);
 
-        long inserted = mDatabase.insert(table, null, values);
-        return inserted;
+            if((mDatabase.insert(table, null, values)) != -1) {
+                count++;
+            }
+        }
+        return count;
     }
 
     /**

@@ -21,6 +21,8 @@ public class PocketReaderContract {
      */
     public abstract static class SlateEntry implements BaseColumns {
 
+        public static final String DATABASE_NAME = "CampusSlate.db";
+
         // Url for the campus slate
         public static final String URL = "http://www.campusslate.com/category/";
 
