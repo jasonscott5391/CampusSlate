@@ -33,16 +33,16 @@ public class PocketListAdapter extends BaseAdapter {
     private Activity mActivity;
     private static LayoutInflater sInflater;
     private static PocketDbHelper mPocketDbHelper;
+    private PocketImageGetter mImageGetter;
     private String mTableName;
-    private ImageView mImageView;
-    private TextView mTitleView;
-    private TextView mDateView;
+    private TextView mContentView;
 
     public PocketListAdapter(Activity activity, String table) {
         mActivity = activity;
         mTableName = table;
         sInflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mPocketDbHelper = PocketDbHelper.getInstance(mActivity);
+
     }
 
     @Override
@@ -69,36 +69,11 @@ public class PocketListAdapter extends BaseAdapter {
             convertView = sInflater.inflate(R.layout.article_list_row, null);
         }
 
-        mImageView = (ImageView) convertView.findViewById(R.id.list_article_image);
-        mTitleView = (TextView) convertView.findViewById(R.id.list_article_title);
-        mDateView = (TextView) convertView.findViewById(R.id.list_article_date);
+        mContentView = (TextView) convertView.findViewById(R.id.content_view);
 
-        mTitleView.setText(entry.title);
-        mDateView.setText(new Date(Long.valueOf(entry.publicationDate)).toString());
-        Html.fromHtml(entry.content, new Html.ImageGetter() {
+        mImageGetter = new PocketImageGetter(mActivity, mContentView, R.drawable.test_article_image);
 
-            @Override
-            public Drawable getDrawable(String source) {
-                final Bitmap bitmap = PocketBitmapTask.getBitmapFromMemCache(source);
-                if (bitmap != null) {
-                    mImageView.setImageBitmap(bitmap);
-                } else {
-                    if (PocketBitmapTask.cancelPotentialWork(source, mImageView)) {
-                        final PocketBitmapTask task =
-                                new PocketBitmapTask(mImageView, source, 250, 250);
-                        final PocketBitmapDrawable bitmapDrawable = new PocketBitmapDrawable(
-                                mActivity.getResources(),
-                                BitmapFactory.decodeResource(mActivity.getResources(),
-                                        R.drawable.ic_launcher),
-                                task
-                        );
-                        mImageView.setImageDrawable(bitmapDrawable);
-                        task.execute(source);
-                    }
-                }
-                return null;
-            }
-        }, null);
+        mContentView.setText(Html.fromHtml(entry.content, mImageGetter, null));
 
         return convertView;
     }

@@ -6,7 +6,6 @@ package edu.nyit.campusslate.utils;
 import edu.nyit.campusslate.Entry;
 
 import android.content.Context;
-import android.util.Log;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -16,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 /**
@@ -36,9 +36,9 @@ public class PocketXmlParser {
      * @param section - String for the specific section RSS feed.
      * @return boolean for the success or failure of parsing
      */
-    public static Integer parse(InputStream in, Context context, String section) {
+    public static int parse(InputStream in, Context context, String section) {
         PocketDbHelper dbHelper = PocketDbHelper.getInstance(context);
-        Integer count = 0;
+        ArrayList<Entry> entries = new ArrayList<Entry>();
         Entry entry;
 
         XmlPullParserFactory factory;
@@ -86,20 +86,13 @@ public class PocketXmlParser {
                                     imageUrl,
                                     bookmarked);
 
-                            if (addEntry(dbHelper, entry, context, section) != -1) {
-                                Log.d("Parser parse()", "Article # " + count + " added to " + section + "!");
-                                count++;
-                            } else {
-                                //TODO(jasonscott) Handle error inserting database
-                                Log.d("Parser parse()", "Error inserting to db, count is " + String.valueOf(count));
-                            }
+                            entries.add(entry);
                         } else if (tagName.equalsIgnoreCase("title")) {
                             title = eventText;
                         } else if (tagName.equalsIgnoreCase("link")) {
                             link = eventText;
                         } else if (tagName.equalsIgnoreCase("pubDate")) {
                             if (eventText != null) {
-//							pubDate = eventText.substring(0, eventText.length() - 6);
                                 SimpleDateFormat simpleDateFormat =
                                         new SimpleDateFormat(PocketReaderContract.SlateEntry.PATTERN);
                                 Date date = simpleDateFormat.parse(eventText);
@@ -128,21 +121,6 @@ public class PocketXmlParser {
         } catch (ParseException e) {
             //TODO(jasonscott) Handle ParseException accordingly
         }
-        return count;
+        return dbHelper.insertEntries(entries, section);
     }
-
-    /**
-     * Calls insertEntry method of PocketDbHelper to effectively
-     * add an article to the database.
-     *
-     * @param entry   - Entry to be inserted.
-     * @param context - Applications Context to access database
-     * @param section - String for the specific section RSS feed.
-     * @return long for row ID of inserted Entry or -1 if error occurred
-     */
-    private static long addEntry(PocketDbHelper dbHelper, Entry entry, Context context, String section) {
-        return dbHelper.insertEntry(entry, section);
-
-    }
-
 }

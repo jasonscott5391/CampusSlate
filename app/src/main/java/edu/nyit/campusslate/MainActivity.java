@@ -14,8 +14,11 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import java.io.File;
 
 /**
  * <p>Title: MainActivity.</p>
@@ -69,6 +72,23 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     @Override
     protected void onResume() {
         super.onResume();
+        //TODO (jasonscott) Check that database exists
+        if(localDatabaseExists()) {
+            // Continue
+
+        } else {
+            // Start async task to download and parse all feeds inserting into database.
+            // Continue when complete.
+        }
+    }
+
+    private boolean localDatabaseExists() {
+        File db = getApplicationContext().getDatabasePath(SlateEntry.DATABASE_NAME);
+        if(db.exists()) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Override

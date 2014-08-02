@@ -170,9 +170,7 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
         protected void onPostExecute(Integer result) {
             mArticleHeaderText.setText("..." + result + " ARTICLES...");
             mSwipeRefresh.setRefreshing(false);
-            mListAdapter.notifyDataSetChanged();
             mLastRefresh = System.currentTimeMillis();
-
             mEditor.putLong("last_refresh_" + mSectionTitle, mLastRefresh);
             mEditor.commit();
         }
@@ -183,18 +181,18 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
         }
 
         /**
-         * @param url
-         * @param table
-         * @return
+         * @param url Campus Slate section URL.
+         * @param section Campus Slate section.
+         * @return Returns number of articles downloaded.
          * @throws IOException
          */
-        private Integer downloadXml(URL url, String table) throws IOException {
-            return PocketXmlParser.parse(downloadUrl(url), getActivity(), table);
+        private Integer downloadXml(URL url, String section) throws IOException {
+            return PocketXmlParser.parse(downloadUrl(url), getActivity(), section);
         }
 
         /**
-         * @param url
-         * @return
+         * @param url Url to establish Http connection.
+         * @return Returns and InputStream from Http connection.
          * @throws IOException
          */
         private InputStream downloadUrl(URL url) throws IOException {

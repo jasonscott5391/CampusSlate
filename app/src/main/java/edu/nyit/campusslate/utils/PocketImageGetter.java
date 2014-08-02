@@ -21,55 +21,70 @@ import java.net.URL;
  *
  * @author jasonscott
  */
-public class PocketImageGetter extends AsyncTask<String, Void, Bitmap> implements ImageGetter {
+public class PocketImageGetter implements ImageGetter {
     private Context mContext;
     private View mView;
-    private Drawable mDawable;
+    private Drawable mDrawable;
+    private int mResId;
 
-    private PocketImageGetter(Context c, View v) {
+    public PocketImageGetter(Context c, View v, int r) {
         mContext = c;
         mView = v;
+        mDrawable = null;
+        mResId = r;
     }
 
     @Override
     public Drawable getDrawable(String source) {
-        Drawable drawable = null;
-        //TODO(jasonscott) set drawable to placeholder for loading.
-        try {
-            Drawable.createFromStream(downloadUrl(source), "src");
-        } catch (IOException e) {
-            // TODO(jasonscott) Auto-generated catch block
-            e.printStackTrace();
+        ImageGetterAsyncTask imageGetter = new ImageGetterAsyncTask();
+
+        imageGetter.execute(source);
+
+        return mDrawable;
+    }
+
+    private class ImageGetterAsyncTask extends AsyncTask<String, Void, Drawable> {
+        private Drawable drawable;
+
+        public ImageGetterAsyncTask() {
+
         }
-        return drawable;
-    }
 
-    @Override
-    protected void onPreExecute() {
+        @Override
+        protected void onPreExecute() {
+            // TODO (jasonscott) Something before background work.
+            mDrawable = mContext.getResources().getDrawable(mResId);
+        }
 
-    }
 
+        @Override
+        protected Drawable doInBackground(String... params) {
+            try {
+                drawable = Drawable.createFromStream(downloadUrl(params[0]), "src");
+            } catch(IOException e) {
+                //TODO (jasonscott) Handle IOExceptions.
+                drawable = null;
+            }
 
-    @Override
-    protected Bitmap doInBackground(String... params) {
-        // TODO(jasonscott) Auto-generated method stub
-        return null;
-    }
+            return drawable;
+        }
 
-    @Override
-    protected void onPostExecute(Bitmap bm) {
+        @Override
+        protected void onPostExecute(Drawable result) {
+            mDrawable = result;
+            mView.invalidate();
+        }
 
-    }
+        private InputStream downloadUrl(String stringUrl) throws IOException {
+            URL url = new URL(stringUrl);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setReadTimeout(5000);		/* milliseconds*/
+            conn.setConnectTimeout(5000);   /* milliseconds*/
+            conn.setRequestMethod("GET");
+            conn.setDoInput(true);
+            conn.connect();
+            return conn.getInputStream();
 
-    private InputStream downloadUrl(String stringUrl) throws IOException {
-        URL url = new URL(stringUrl);
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setReadTimeout(5000);		/* milliseconds*/
-        conn.setConnectTimeout(5000);   /* milliseconds*/
-        conn.setRequestMethod("GET");
-        conn.setDoInput(true);
-        conn.connect();
-        return conn.getInputStream();
-
+        }
     }
 }
