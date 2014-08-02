@@ -71,7 +71,7 @@ public class PocketListAdapter extends BaseAdapter {
 
         mContentView = (TextView) convertView.findViewById(R.id.content_view);
 
-        mImageGetter = new PocketImageGetter(mActivity, mContentView, R.drawable.test_article_image);
+        mImageGetter = new PocketImageGetter(mContentView);
 
         mContentView.setText(Html.fromHtml(entry.content, mImageGetter, null));
 
