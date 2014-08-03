@@ -1,0 +1,26 @@
+apply plugin: 'android'
+
+android {
+    //compileSdkVersion 'android-L'
+
+    compileSdkVersion 20
+    buildToolsVersion '20.0.0'
+
+
+    defaultConfig {
+        applicationId "edu.nyit.campusslate"
+        minSdkVersion 18
+        targetSdkVersion 20
+    }
+
+    buildTypes {
+        release {
+            runProguard false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+    }
+}
+
+dependencies {
+    compile 'com.android.support:support-v4:20.0.0'
+}
