@@ -21,7 +21,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -147,6 +146,7 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
     // Asyncronous task to make network connection and parse RSS feed
     private class AggregatorTask extends AsyncTask<String, Integer, Integer> {
 
+        private String cancelMessage = null;
 
         @Override
         protected void onPreExecute() {
@@ -163,6 +163,13 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
                     this.cancel(true);
                 }
             } catch (PocketBuildException e) {
+                if(e.getMessage().equals("Build")) {
+                    // Articles up to date.
+                    cancelMessage = "Articles Up To Date";
+                } else {
+                    // Last article reached
+                    cancelMessage = null;
+                }
                 this.cancel(true);
             } catch (MalformedURLException e) {
                 e.printStackTrace();
@@ -188,7 +195,11 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
 
         @Override
         protected void onCancelled(Integer result) {
-            cleanUp("Articles Up To Date");
+            if(cancelMessage != null) {
+                cleanUp(cancelMessage);
+            } else {
+                cleanUp("..." + result + " ARTICLES...");
+            }
             mAsyncTask = null;
         }
 

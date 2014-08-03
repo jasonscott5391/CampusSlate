@@ -39,6 +39,7 @@ public class PocketXmlParser {
      */
     public static int parse(InputStream in, Context context, String section, long lastRefresh) throws PocketBuildException {
         PocketDbHelper dbHelper = PocketDbHelper.getInstance(context);
+        long limit = Long.valueOf(dbHelper.retrieveEntry(section, "1").publicationDate);
         ArrayList<Entry> entries = new ArrayList<Entry>();
         Entry entry;
 
@@ -81,7 +82,7 @@ public class PocketXmlParser {
                         if(tagName.equals("lastBuildDate")) {
                             long build = simpleDateFormat.parse(eventText).getTime();
                             if (build < lastRefresh) {
-                                throw new PocketBuildException("Build date matches previous.");
+                                throw new PocketBuildException("Build");
                             }
                         }
                         if (tagName.equalsIgnoreCase("item")) {
@@ -104,8 +105,11 @@ public class PocketXmlParser {
                             link = eventText;
                         } else if (tagName.equalsIgnoreCase("pubDate")) {
                             if (eventText != null) {
-
                                 Date date = simpleDateFormat.parse(eventText);
+                                long current = date.getTime();
+                                if(current == limit) {
+                                    throw new PocketBuildException("Limit");
+                                }
                                 pubDate = String.valueOf(date.getTime());
                             }
                         } else if (tagName.equalsIgnoreCase("creator")) {
