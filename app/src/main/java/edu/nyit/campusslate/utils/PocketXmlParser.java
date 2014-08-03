@@ -134,10 +134,4 @@ public class PocketXmlParser {
         return dbHelper.insertEntries(entries, section);
     }
 
-    // TODO (jasonscott) Parse last build date.  Throw exception build dates match.
-
-    private static void parseLastBuild(InputStream in, long lastBuild) {
-
-    }
-
 }
