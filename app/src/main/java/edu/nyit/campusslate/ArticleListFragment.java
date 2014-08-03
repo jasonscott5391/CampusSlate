@@ -3,6 +3,7 @@
  */
 package edu.nyit.campusslate;
 
+import edu.nyit.campusslate.exceptions.PocketBuildException;
 import edu.nyit.campusslate.utils.PocketListAdapter;
 import edu.nyit.campusslate.utils.PocketReaderContract.SlateEntry;
 import edu.nyit.campusslate.utils.PocketXmlParser;
@@ -20,6 +21,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -49,6 +51,7 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
     private AggregatorTask mAsyncTask = new AggregatorTask();
     private Long mLastRefresh;
     private SharedPreferences.Editor mEditor;
+    private int mArticleCount;
 
 
     @Override
@@ -97,7 +100,6 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
 
         if ((System.currentTimeMillis() - mLastRefresh) > FIFTEEN_MINUTES) {
             onRefresh();
-            mArticleHeaderText.setText(UPDATE);
         } else {
             mArticleHeaderText.setText("Last Update on " + new Date(mLastRefresh).toString());
         }
@@ -111,10 +113,17 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
 
     @Override
     public void onRefresh() {
-        if (mAsyncTask.getStatus() != AsyncTask.Status.RUNNING) {
+//        if (mAsyncTask.getStatus() != AsyncTask.Status.RUNNING) {
+        if (mAsyncTask != null) {
+            mArticleHeaderText.setText(UPDATE);
             mAsyncTask.execute(mSectionTitle.toLowerCase(Locale.US));
             mSwipeRefresh.setRefreshing(true);
         }
+    }
+
+    private void updateAfter(String headerText) {
+        mArticleHeaderText.setText(headerText);
+        mSwipeRefresh.setRefreshing(false);
     }
 
     private class ArticleListClickListener implements ListView.OnItemClickListener {
@@ -148,10 +157,13 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
         protected Integer doInBackground(String... strs) {
             Integer count = -1;
             try {
+                // TODO (jasonscott) Call to check last build date.  Catch exception.
                 count = downloadXml(new URL(SlateEntry.URL + strs[0] + "/feed"), strs[0]);
                 if (count == -1) {
                     this.cancel(true);
                 }
+            } catch (PocketBuildException e) {
+                this.cancel(true);
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             } catch (IOException e) {
@@ -168,29 +180,34 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
 
         @Override
         protected void onPostExecute(Integer result) {
-            mArticleHeaderText.setText("..." + result + " ARTICLES...");
-            mSwipeRefresh.setRefreshing(false);
-            mLastRefresh = System.currentTimeMillis();
-            mEditor.putLong("last_refresh_" + mSectionTitle, mLastRefresh);
-            mEditor.commit();
+            mArticleCount = result;
+            cleanUp("..." + result + " ARTICLES...");
             mListAdapter.notifyDataSetChanged();
             mAsyncTask = null;
         }
 
         @Override
         protected void onCancelled(Integer result) {
+            cleanUp("Articles Up To Date");
             mAsyncTask = null;
-            onRefresh();
+        }
+
+        private void cleanUp(String headerText) {
+            updateAfter(headerText);
+            mLastRefresh = System.currentTimeMillis();
+            mEditor.putLong("last_refresh_" + mSectionTitle, mLastRefresh);
+            mEditor.commit();
+
         }
 
         /**
-         * @param url Campus Slate section URL.
+         * @param url     Campus Slate section URL.
          * @param section Campus Slate section.
          * @return Returns number of articles downloaded.
          * @throws IOException
          */
-        private Integer downloadXml(URL url, String section) throws IOException {
-            return PocketXmlParser.parse(downloadUrl(url), getActivity(), section);
+        private Integer downloadXml(URL url, String section) throws PocketBuildException, IOException {
+            return PocketXmlParser.parse(downloadUrl(url), getActivity(), section, mLastRefresh);
         }
 
         /**

@@ -4,6 +4,7 @@
 package edu.nyit.campusslate.utils;
 
 import edu.nyit.campusslate.Entry;
+import edu.nyit.campusslate.exceptions.PocketBuildException;
 
 import android.content.Context;
 
@@ -36,7 +37,7 @@ public class PocketXmlParser {
      * @param section - String for the specific section RSS feed.
      * @return boolean for the success or failure of parsing
      */
-    public static int parse(InputStream in, Context context, String section) {
+    public static int parse(InputStream in, Context context, String section, long lastRefresh) throws PocketBuildException {
         PocketDbHelper dbHelper = PocketDbHelper.getInstance(context);
         ArrayList<Entry> entries = new ArrayList<Entry>();
         Entry entry;
@@ -59,20 +60,30 @@ public class PocketXmlParser {
             factory = XmlPullParserFactory.newInstance();
             factory.setNamespaceAware(true);
 
+            SimpleDateFormat simpleDateFormat =
+                    new SimpleDateFormat(PocketReaderContract.SlateEntry.PATTERN);
+
             parser = factory.newPullParser();
             parser.setInput(in, null);
 
             String eventText = null;
+            String tagName = null;
             int eventType = parser.getEventType();
 
             while (eventType != XmlPullParser.END_DOCUMENT) {
-                String tagName = parser.getName();
+                tagName = parser.getName();
 
                 switch (eventType) {
                     case XmlPullParser.TEXT:
                         eventText = parser.getText();
                         break;
                     case XmlPullParser.END_TAG:
+                        if(tagName.equals("lastBuildDate")) {
+                            long build = simpleDateFormat.parse(eventText).getTime();
+                            if (build < lastRefresh) {
+                                throw new PocketBuildException("Build date matches previous.");
+                            }
+                        }
                         if (tagName.equalsIgnoreCase("item")) {
 
                             entry = new Entry(null,
@@ -93,8 +104,7 @@ public class PocketXmlParser {
                             link = eventText;
                         } else if (tagName.equalsIgnoreCase("pubDate")) {
                             if (eventText != null) {
-                                SimpleDateFormat simpleDateFormat =
-                                        new SimpleDateFormat(PocketReaderContract.SlateEntry.PATTERN);
+
                                 Date date = simpleDateFormat.parse(eventText);
                                 pubDate = String.valueOf(date.getTime());
                             }
@@ -123,4 +133,11 @@ public class PocketXmlParser {
         }
         return dbHelper.insertEntries(entries, section);
     }
+
+    // TODO (jasonscott) Parse last build date.  Throw exception build dates match.
+
+    private static void parseLastBuild(InputStream in, long lastBuild) {
+
+    }
+
 }
