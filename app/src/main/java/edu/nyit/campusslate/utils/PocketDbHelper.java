@@ -24,7 +24,6 @@ import java.util.ArrayList;
 public class PocketDbHelper extends SQLiteOpenHelper {
 
     private static PocketDbHelper sInstance = null;
-    private SQLiteDatabase mDatabase;
     public static final int DATABASE_VERSION = 1;
     private static final String TEXT_TYPE = " TEXT";
     private static final String COMMA_SEP = ",";
@@ -70,9 +69,9 @@ public class PocketDbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        mDatabase = db;
+//        mDatabase = db;
         for (String table : SlateEntry.TABLE_NAMES) {
-            mDatabase.execSQL("CREATE TABLE " + table + SQL_CREATE_ENTRIES);
+            db.execSQL("CREATE TABLE " + table + SQL_CREATE_ENTRIES);
         }
     }
 
@@ -106,7 +105,7 @@ public class PocketDbHelper extends SQLiteOpenHelper {
             values.put(SlateEntry.COLUMN_NAMES[SlateEntry.IMAGE_URL], entry.imageUrl);
             values.put(SlateEntry.COLUMN_NAMES[SlateEntry.BOOKMARKED], entry.bookmarked);
 
-            if((mDatabase.insert(table, null, values)) != -1) {
+            if((getWritableDatabase().insert(table, null, values)) != -1) {
                 count++;
             }
         }
@@ -127,7 +126,7 @@ public class PocketDbHelper extends SQLiteOpenHelper {
         String selection = SlateEntry._ID + " = ?";
         String[] selectionArgs = {String.valueOf(id)};
 
-        Cursor cursor = mDatabase.query(table, null, selection, selectionArgs, null, null, null);
+        Cursor cursor = getReadableDatabase().query(table, null, selection, selectionArgs, null, null, null);
 
         if (cursor.moveToFirst()) {
             do {
@@ -156,8 +155,9 @@ public class PocketDbHelper extends SQLiteOpenHelper {
      */
     public ArrayList<Entry> retrieveTable(String table) {
         ArrayList<Entry> entries = new ArrayList<Entry>();
-        if (mDatabase != null) {
-            Cursor cursor = mDatabase.query(
+        SQLiteDatabase db = getReadableDatabase();
+        if (db != null) {
+            Cursor cursor = db.query(
                     table,
                     null,
                     null,
@@ -195,6 +195,6 @@ public class PocketDbHelper extends SQLiteOpenHelper {
      * @return int - Number of entries.
      */
     public int getNumEntries(String table) {
-        return (int) DatabaseUtils.queryNumEntries(mDatabase, table);
+        return (int) DatabaseUtils.queryNumEntries(getReadableDatabase(), table);
     }
 }
