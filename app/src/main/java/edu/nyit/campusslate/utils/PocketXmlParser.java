@@ -39,9 +39,13 @@ public class PocketXmlParser {
      */
     public static int parse(InputStream in, Context context, String section, long lastRefresh) throws PocketBuildException {
         PocketDbHelper dbHelper = PocketDbHelper.getInstance(context);
-        long limit = Long.valueOf(dbHelper.retrieveEntry(section, "1").publicationDate);
+        Entry entry = dbHelper.retrieveEntry(section, "1");
+        long limit = 0L;
+        if (entry != null) {
+            limit = Long.valueOf(entry.publicationDate);
+
+        }
         ArrayList<Entry> entries = new ArrayList<Entry>();
-        Entry entry;
 
         XmlPullParserFactory factory;
         XmlPullParser parser;
@@ -68,7 +72,7 @@ public class PocketXmlParser {
             parser.setInput(in, null);
 
             String eventText = null;
-            String tagName = null;
+            String tagName;
             int eventType = parser.getEventType();
 
             while (eventType != XmlPullParser.END_DOCUMENT) {

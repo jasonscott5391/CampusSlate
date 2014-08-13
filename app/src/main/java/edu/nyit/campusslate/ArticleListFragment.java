@@ -36,10 +36,10 @@ import java.util.Locale;
  *
  * @author jasonscott
  */
-public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
+public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener{
 
     private static final long FIFTEEN_MINUTES = 1000 * 60 * 15;
-    private static final String UPDATE = "...UPDATING...";
+    private static final String UPDATE = "UPDATING...";
 
     private SwipeRefreshLayout mSwipeRefresh;
     private ListView mArticleList;
@@ -50,7 +50,6 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
     private AggregatorTask mAsyncTask = new AggregatorTask();
     private Long mLastRefresh;
     private SharedPreferences.Editor mEditor;
-    private int mArticleCount;
 
 
     @Override
@@ -61,6 +60,7 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
 
         mArticleHeader = getActivity().getLayoutInflater()
                 .inflate(R.layout.article_list_header, null, true);
+//        mArticleHeader.setVisibility(View.GONE);
 
         mArticleHeaderText = (TextView) mArticleHeader.findViewById(R.id.article_count);
         mEditor = getActivity().getPreferences(Context.MODE_PRIVATE).edit();
@@ -113,6 +113,7 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
     @Override
     public void onRefresh() {
 //        if (mAsyncTask.getStatus() != AsyncTask.Status.RUNNING) {
+//        mArticleHeader.setVisibility(View.VISIBLE);
         if (mAsyncTask != null) {
             mArticleHeaderText.setText(UPDATE);
             mAsyncTask.execute(mSectionTitle.toLowerCase(Locale.US));
@@ -121,8 +122,14 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
     }
 
     private void updateAfter(String headerText) {
+        mLastRefresh = System.currentTimeMillis();
+        mEditor.putLong("last_refresh_" + mSectionTitle, mLastRefresh);
+        mEditor.commit();
         mArticleHeaderText.setText(headerText);
         mSwipeRefresh.setRefreshing(false);
+//        mArticleHeader.setVisibility(View.INVISIBLE);
+        mListAdapter.notifyDataSetChanged();
+
     }
 
     private class ArticleListClickListener implements ListView.OnItemClickListener {
@@ -143,14 +150,13 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
 
     }
 
-    // Asyncronous task to make network connection and parse RSS feed
-    private class AggregatorTask extends AsyncTask<String, Integer, Integer> {
+    // Asyncronous task to make network connection and parse RSS feed    implements PocketCallBack
+    public class AggregatorTask extends AsyncTask<String, Integer, Integer>  {
 
         private String cancelMessage = null;
 
         @Override
         protected void onPreExecute() {
-            mArticleHeaderText.setText(UPDATE);
         }
 
         @Override
@@ -159,11 +165,12 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
             try {
                 // TODO (jasonscott) Call to check last build date.  Catch exception.
                 count = downloadXml(new URL(SlateEntry.URL + strs[0] + "/feed"), strs[0]);
+
                 if (count == -1) {
                     this.cancel(true);
                 }
             } catch (PocketBuildException e) {
-                if(e.getMessage().equals("Build")) {
+                if (e.getMessage().equals("Build")) {
                     // Articles up to date.
                     cancelMessage = "Articles Up To Date";
                 } else {
@@ -181,34 +188,24 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
         }
 
         @Override
-        protected void onProgressUpdate(Integer... progress) {
+        protected void onProgressUpdate(Integer... p) {
 
         }
 
         @Override
         protected void onPostExecute(Integer result) {
-            mArticleCount = result;
-            cleanUp("..." + result + " ARTICLES...");
-            mListAdapter.notifyDataSetChanged();
+            updateAfter(result + " ARTICLES...");
             mAsyncTask = null;
         }
 
         @Override
         protected void onCancelled(Integer result) {
-            if(cancelMessage != null) {
-                cleanUp(cancelMessage);
+            if (cancelMessage != null) {
+                updateAfter(cancelMessage);
             } else {
-                cleanUp("..." + result + " ARTICLES...");
+                updateAfter(result + " ARTICLES...");
             }
             mAsyncTask = null;
-        }
-
-        private void cleanUp(String headerText) {
-            updateAfter(headerText);
-            mLastRefresh = System.currentTimeMillis();
-            mEditor.putLong("last_refresh_" + mSectionTitle, mLastRefresh);
-            mEditor.commit();
-
         }
 
         /**

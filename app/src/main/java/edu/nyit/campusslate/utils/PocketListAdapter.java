@@ -34,40 +34,41 @@ public class PocketListAdapter extends BaseAdapter {
     private static LayoutInflater sInflater;
     private static PocketDbHelper mPocketDbHelper;
     private PocketImageGetter mImageGetter;
-    private String mTableName;
     private TextView mTitleView;
     private TextView mAuthorView;
     private TextView mDateView;
     private TextView mContentView;
+    private ArrayList<Entry> mEntries;
+    private String mTableName;
 
     public PocketListAdapter(Activity activity, String table) {
         mActivity = activity;
         mTableName = table;
         sInflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mPocketDbHelper = PocketDbHelper.getInstance(mActivity);
+        mEntries = mPocketDbHelper.retrieveTable(table);
 
     }
 
     @Override
     public int getCount() {
-        return mPocketDbHelper.getNumEntries(mTableName);
+        return mEntries.size();
     }
 
     @Override
     public Entry getItem(int position) {
-        //return mPocketDbHelper.retrieveEntry(mTableName, String.valueOf(position + 1));
-        return mPocketDbHelper.retrieveTable(mTableName).get(position);
+        return mEntries.get(position);
     }
 
     @Override
     public long getItemId(int position) {
-//        return Long.valueOf(mPocketDbHelper.retrieveEntry(mTableName, String.valueOf(position + 1)).id);
-        return Long.valueOf(mPocketDbHelper.retrieveTable(mTableName).get(position).id);
+        Entry entry = mEntries.get(position);
+        return Long.valueOf(entry.id);
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        Entry entry = mPocketDbHelper.retrieveTable(mTableName).get(position);
+        Entry entry = mEntries.get(position);
         if (convertView == null) {
             convertView = sInflater.inflate(R.layout.article_list_row, null);
         }
@@ -85,6 +86,12 @@ public class PocketListAdapter extends BaseAdapter {
         mContentView.setText(Html.fromHtml(entry.content, mImageGetter, null));
 
         return convertView;
+    }
+
+    @Override
+    public void notifyDataSetChanged() {
+        super.notifyDataSetChanged();
+        mEntries = mPocketDbHelper.retrieveTable(mTableName);
     }
 
 }
