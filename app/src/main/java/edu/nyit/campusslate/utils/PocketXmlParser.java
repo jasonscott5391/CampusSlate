@@ -18,6 +18,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * <p>Title: PocketXmlParser.</p>
@@ -123,7 +125,13 @@ public class PocketXmlParser {
                         } else if (tagName.equalsIgnoreCase("description")) {
                             description = eventText;
                         } else if (tagName.equalsIgnoreCase("encoded")) { // "content:encoded"
-                            content = eventText;
+                            String regexImage = "(?<=<img src=\")[^\"]*.jpg|(?<=<img src=\")[^\"]*.png|(?<=<img src=\")[^\"]*.jpeg|(?<=<img src=\")[^\"]*.gif|(?<=<img src=\")[^\"]*.bmp";
+                            Pattern pattern = Pattern.compile(regexImage);
+                            Matcher matcher = pattern.matcher(eventText);
+                            while (matcher.find()) {
+                                imageUrl = matcher.group();
+                            }
+                            content = eventText.replaceAll("\\<.*?>", "");
                             //TODO(jasonscott) Parse content for image URL
                         }
                         break;

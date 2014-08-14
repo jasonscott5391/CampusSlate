@@ -7,12 +7,11 @@ import edu.nyit.campusslate.utils.PocketBitmapTask;
 import edu.nyit.campusslate.utils.PocketBitmapTask.PocketBitmapDrawable;
 import edu.nyit.campusslate.utils.PocketDbHelper;
 
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -68,6 +67,8 @@ public class ArticleFragment extends Fragment {
                 .retrieveEntry(mArticleSection.toLowerCase(Locale.US),
                         String.valueOf(mArticleId + 1));
 
+        loadBitmap(mArticleImage, entry.imageUrl, 500, 350);
+
         String position;
         if (mArticleId == 0) {
             position = entry.id + " of " + mNumEntries + RIGHT_SWIPE;
@@ -81,34 +82,25 @@ public class ArticleFragment extends Fragment {
         mArticleDate.setText(new Date(Long.valueOf(entry.publicationDate)).toString());
         mArticleTitle.setText(entry.title);
         mArticleAuthor.setText(entry.creator);
-        mArticleContent.setText(Html.fromHtml(entry.content, new Html.ImageGetter() {
-
-            @Override
-            public Drawable getDrawable(String source) {
-                final Bitmap bitmap =
-                        PocketBitmapTask.getBitmapFromMemCache(source);
-                if (bitmap != null) {
-                    mArticleImage.setImageBitmap(bitmap);
-                } else {
-                    if (PocketBitmapTask.cancelPotentialWork(source,
-                            mArticleImage)) {
-                        final PocketBitmapTask task =
-                                new PocketBitmapTask(mArticleImage, source, 250, 250);
-                        final PocketBitmapDrawable bitmapDrawable =
-                                new PocketBitmapDrawable(
-                                        getResources(),
-                                        BitmapFactory.decodeResource(getResources(),
-                                                R.drawable.ic_launcher), task
-                                );
-                        mArticleImage.setImageDrawable(bitmapDrawable);
-                        task.execute(source);
-                    }
-                }
-                return null;
-            }
-        }, null));
+        mArticleContent.setText(entry.content);
 
         return view;
+    }
+
+    private void loadBitmap(ImageView imageView, String url, int width, int height) {
+
+        final Bitmap bitmap = PocketBitmapTask.getBitmapFromMemCache(url);
+        if (bitmap != null) {
+            mArticleImage.setImageBitmap(bitmap);
+        } else {
+            if (PocketBitmapTask.cancelPotentialWork(url, imageView)) {
+                final PocketBitmapTask task = new PocketBitmapTask(imageView, url, width, height);
+                Resources resources = getResources();
+                final PocketBitmapDrawable bitmapDrawable = new PocketBitmapDrawable(resources, BitmapFactory.decodeResource(resources, R.drawable.test_article_image), task);
+                imageView.setImageDrawable(bitmapDrawable);
+                task.execute(url);
+            }
+        }
     }
 
     //TODO(jasonscott) OptionsMenu for add to saved stories, open in browser, and find in page

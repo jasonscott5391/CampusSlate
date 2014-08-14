@@ -60,7 +60,6 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
 
         mArticleHeader = getActivity().getLayoutInflater()
                 .inflate(R.layout.article_list_header, null, true);
-//        mArticleHeader.setVisibility(View.GONE);
 
         mArticleHeaderText = (TextView) mArticleHeader.findViewById(R.id.article_count);
         mEditor = getActivity().getPreferences(Context.MODE_PRIVATE).edit();
@@ -75,7 +74,6 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
         view = inflater.inflate(R.layout.fragment_article_list, container, false);
         mArticleList = (ListView) view.findViewById(R.id.article_list_view);
         mArticleList.addHeaderView(mArticleHeader);
-
         mListAdapter = new PocketListAdapter(getActivity(),
                 mSectionTitle.toLowerCase(Locale.US));
         mArticleList.setAdapter(mListAdapter);
@@ -112,8 +110,6 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
 
     @Override
     public void onRefresh() {
-//        if (mAsyncTask.getStatus() != AsyncTask.Status.RUNNING) {
-//        mArticleHeader.setVisibility(View.VISIBLE);
         if (mAsyncTask != null) {
             mArticleHeaderText.setText(UPDATE);
             mAsyncTask.execute(mSectionTitle.toLowerCase(Locale.US));
@@ -127,7 +123,6 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
         mEditor.commit();
         mArticleHeaderText.setText(headerText);
         mSwipeRefresh.setRefreshing(false);
-//        mArticleHeader.setVisibility(View.INVISIBLE);
         mListAdapter.notifyDataSetChanged();
 
     }
