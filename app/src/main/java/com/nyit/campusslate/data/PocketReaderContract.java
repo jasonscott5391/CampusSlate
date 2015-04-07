@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2014 Jason Scott
  */
-package edu.nyit.campusslate.data;
+package com.nyit.campusslate.data;
 
 import android.provider.BaseColumns;
 

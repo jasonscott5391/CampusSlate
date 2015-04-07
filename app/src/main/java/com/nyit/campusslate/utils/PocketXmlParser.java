@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2014 Jason Scott
  */
-package edu.nyit.campusslate.utils;
+package com.nyit.campusslate.utils;
 
-import edu.nyit.campusslate.data.PocketDbHelper;
-import edu.nyit.campusslate.data.PocketReaderContract;
-import edu.nyit.campusslate.normalized.Entry;
-import edu.nyit.campusslate.exceptions.PocketBuildException;
+import com.nyit.campusslate.data.PocketDbHelper;
+import com.nyit.campusslate.data.PocketReaderContract;
+import com.nyit.campusslate.normalized.Entry;
+import com.nyit.campusslate.exceptions.PocketBuildException;
 
 import android.content.Context;
 

@@ -1,11 +1,11 @@
 /**
  * Copyright (C) 2014 Jason Scott
  */
-package edu.nyit.campusslate.activities;
+package com.nyit.campusslate.activities;
 
-import edu.nyit.campusslate.fragments.ArticleListFragment;
-import edu.nyit.campusslate.R;
-import edu.nyit.campusslate.data.PocketReaderContract.SlateEntry;
+import com.nyit.campusslate.fragments.ArticleListFragment;
+import com.nyit.campusslate.R;
+import com.nyit.campusslate.data.PocketReaderContract.SlateEntry;
 
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;

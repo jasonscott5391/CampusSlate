@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2014 Jason Scott
  */
-package edu.nyit.campusslate.normalized;
+package com.nyit.campusslate.normalized;
 /**
  * <p>Title: Entry.</p>
  * @author jasonscott

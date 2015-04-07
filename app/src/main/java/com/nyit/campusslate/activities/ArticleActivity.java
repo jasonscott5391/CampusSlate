@@ -1,11 +1,11 @@
 /**
  * Copyright (C) 2014 Jason Scott
  */
-package edu.nyit.campusslate.activities;
+package com.nyit.campusslate.activities;
 
-import edu.nyit.campusslate.fragments.ArticleFragment;
-import edu.nyit.campusslate.R;
-import edu.nyit.campusslate.data.PocketDbHelper;
+import com.nyit.campusslate.fragments.ArticleFragment;
+import com.nyit.campusslate.R;
+import com.nyit.campusslate.data.PocketDbHelper;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;

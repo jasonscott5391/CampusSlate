@@ -1,10 +1,10 @@
 /**
  * Copyright (C) 2014 Jason Scott
  */
-package edu.nyit.campusslate.data;
+package com.nyit.campusslate.data;
 
-import edu.nyit.campusslate.normalized.Entry;
-import edu.nyit.campusslate.data.PocketReaderContract.SlateEntry;
+import com.nyit.campusslate.normalized.Entry;
+import com.nyit.campusslate.data.PocketReaderContract.SlateEntry;
 
 import android.content.Context;
 import android.database.Cursor;

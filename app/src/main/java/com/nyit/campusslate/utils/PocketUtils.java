@@ -1,4 +1,4 @@
-package edu.nyit.campusslate.utils;
+package com.nyit.campusslate.utils;
 
 import java.io.IOException;
 import java.io.InputStream;

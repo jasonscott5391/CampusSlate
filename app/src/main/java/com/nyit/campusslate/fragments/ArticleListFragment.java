@@ -1,15 +1,15 @@
 /**
  * Copyright (C) 2014 Jason Scott
  */
-package edu.nyit.campusslate.fragments;
+package com.nyit.campusslate.fragments;
 
-import edu.nyit.campusslate.R;
-import edu.nyit.campusslate.activities.ArticleActivity;
-import edu.nyit.campusslate.exceptions.PocketBuildException;
-import edu.nyit.campusslate.utils.PocketUtils;
-import edu.nyit.campusslate.utils.PocketListAdapter;
-import edu.nyit.campusslate.data.PocketReaderContract.SlateEntry;
-import edu.nyit.campusslate.utils.PocketXmlParser;
+import com.nyit.campusslate.R;
+import com.nyit.campusslate.activities.ArticleActivity;
+import com.nyit.campusslate.exceptions.PocketBuildException;
+import com.nyit.campusslate.utils.PocketUtils;
+import com.nyit.campusslate.utils.PocketListAdapter;
+import com.nyit.campusslate.data.PocketReaderContract.SlateEntry;
+import com.nyit.campusslate.utils.PocketXmlParser;
 
 import android.content.Context;
 import android.content.Intent;

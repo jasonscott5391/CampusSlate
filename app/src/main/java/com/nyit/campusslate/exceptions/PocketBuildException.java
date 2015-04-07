@@ -1,4 +1,4 @@
-package edu.nyit.campusslate.exceptions;
+package com.nyit.campusslate.exceptions;
 
 /**
  * <p>Title: PocketBuildException.java</p>
