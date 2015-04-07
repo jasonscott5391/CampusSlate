@@ -3,15 +3,12 @@
  */
 package edu.nyit.campusslate.utils;
 
-import edu.nyit.campusslate.Entry;
+import edu.nyit.campusslate.data.PocketDbHelper;
+import edu.nyit.campusslate.normalized.Entry;
 import edu.nyit.campusslate.R;
-import edu.nyit.campusslate.utils.PocketBitmapTask.PocketBitmapDrawable;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,8 +17,9 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+
 import java.util.ArrayList;
-import java.util.Date;
 
 /**
  * <p>Title: ArticleListAdapter.</p>
@@ -33,11 +31,9 @@ public class PocketListAdapter extends BaseAdapter {
     private Activity mActivity;
     private static LayoutInflater sInflater;
     private static PocketDbHelper mPocketDbHelper;
-    private PocketImageGetter mImageGetter;
+    private ImageView mArticleImage;
     private TextView mTitleView;
-    private TextView mAuthorView;
-    private TextView mDateView;
-    private TextView mContentView;
+    private TextView mDescriptionView;
     private ArrayList<Entry> mEntries;
     private String mTableName;
 
@@ -63,7 +59,7 @@ public class PocketListAdapter extends BaseAdapter {
     @Override
     public long getItemId(int position) {
         Entry entry = mEntries.get(position);
-        return Long.valueOf(entry.id);
+        return (long) entry.getId();
     }
 
     @Override
@@ -73,17 +69,18 @@ public class PocketListAdapter extends BaseAdapter {
             convertView = sInflater.inflate(R.layout.article_list_row, null);
         }
 
+        mArticleImage = (ImageView) convertView.findViewById(R.id.content_image);
         mTitleView = (TextView) convertView.findViewById(R.id.content_title);
-        mAuthorView = (TextView) convertView.findViewById(R.id.content_author);
-        mDateView = (TextView) convertView.findViewById(R.id.content_date);
-        mContentView = (TextView) convertView.findViewById(R.id.content_view);
+        mDescriptionView = (TextView) convertView.findViewById(R.id.content_description);
 
-        mImageGetter = new PocketImageGetter(mContentView);
+        Glide.with(mActivity)
+                .load(entry.getImageUrl())
+                .placeholder(R.drawable.ic_action_refresh)
+                .crossFade()
+                .into(mArticleImage);
 
-        mTitleView.setText(entry.title);
-        mAuthorView.setText(entry.creator);
-        mDateView.setText(new Date(Long.valueOf(entry.publicationDate)).toString());
-        mContentView.setText(Html.fromHtml(entry.content, mImageGetter, null));
+        mTitleView.setText(entry.getTitle());
+        mDescriptionView.setText(Html.fromHtml(entry.getDescription()));
 
         return convertView;
     }
@@ -93,5 +90,4 @@ public class PocketListAdapter extends BaseAdapter {
         super.notifyDataSetChanged();
         mEntries = mPocketDbHelper.retrieveTable(mTableName);
     }
-
 }

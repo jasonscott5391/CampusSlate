@@ -26,16 +26,21 @@
     <style name="MyActionBarTabText" parent="@android:style/Widget.Holo.ActionBar.TabText">
         <item name="android:textColor">#FFFFFF</item>
     </style>
+    <!-- ActionBar Title text styles -->
+    <style name="MyActionBarTitleText" parent="@android:style/TextAppearance.Holo.Widget.ActionBar.Title">
+        <item name="android:textColor">#FFFFFF</item>
+    </style>
 
     <style name="MyActionBarTabView" parent="@android:style/Widget.Holo.ActionBar.TabView">
         <!-- tab indicator -->
         <item name="android:background">@drawable/actionbar_tab_indicator</item>
     </style>
-    
-        <style name="MyActionBar.Solid" parent="@android:style/Widget.Holo.Light.ActionBar.Solid">
+
+    <style name="MyActionBar.Solid" parent="@android:style/Widget.Holo.Light.ActionBar.Solid">
         <item name="android:background">@drawable/ab_solid</item>
         <item name="android:backgroundStacked">@drawable/ab_stacked_solid</item>
         <item name="android:backgroundSplit">@drawable/ab_bottom_solid</item>
+        <item name="android:titleTextStyle">@style/MyActionBarTitleText</item>
     </style>
 
 </resources>

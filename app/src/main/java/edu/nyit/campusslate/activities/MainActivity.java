@@ -1,56 +1,57 @@
 /**
  * Copyright (C) 2014 Jason Scott
  */
-package edu.nyit.campusslate;
+package edu.nyit.campusslate.activities;
 
-import edu.nyit.campusslate.utils.PocketReaderContract.SlateEntry;
+import edu.nyit.campusslate.fragments.ArticleListFragment;
+import edu.nyit.campusslate.R;
+import edu.nyit.campusslate.data.PocketReaderContract.SlateEntry;
 
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.FragmentTransaction;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import java.io.File;
-
 /**
- * <p>Title: MainActivity.</p>
+ * <p>Title: MainActivity.java</p>
+ * <p>Description:</p>
  *
  * @author jasonscott
  */
-public class MainActivity extends FragmentActivity implements ActionBar.TabListener {
+public class MainActivity
+        extends FragmentActivity
+        implements ActionBar.TabListener {
 
-    private PocketSectionPagerAdapter mSectionPagerAdapter;
-
-    /**
-     *
-     */
     private ViewPager mSectionViewPager;
 
-    /**
-     *
-     */
-    private static final int COUNT = 5;
+    private static final int PAGE_COUNT = 5;
+
+    private static int currentPosition = 0;
+
+    private SharedPreferences.Editor mEditor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mSectionPagerAdapter = new PocketSectionPagerAdapter(getSupportFragmentManager());
+        PocketSectionPagerAdapter mSectionPagerAdapter = new PocketSectionPagerAdapter(getSupportFragmentManager());
 
         final ActionBar actionBar = getActionBar();
-        actionBar.setHomeButtonEnabled(false);
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-        actionBar.setDisplayShowTitleEnabled(false);
-
+        if (actionBar != null) {
+            actionBar.setHomeButtonEnabled(false);
+            actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+            actionBar.setDisplayShowTitleEnabled(false);
+        }
         mSectionViewPager = (ViewPager) findViewById(R.id.section_pager);
         mSectionViewPager.setAdapter(mSectionPagerAdapter);
         mSectionViewPager.setOnPageChangeListener(
@@ -67,34 +68,24 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
             actionBar.addTab(actionBar.newTab().setText(
                     mSectionPagerAdapter.getPageTitle(i)).setTabListener(this));
         }
+
+        mEditor = getPreferences(Context.MODE_PRIVATE).edit();
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        //TODO (jasonscott) Check that database exists
-        if(localDatabaseExists()) {
-            // Continue
-
-        } else {
-            // Start async task to download and parse all feeds inserting into database.
-            // Continue when complete.
-        }
-    }
-
-    private boolean localDatabaseExists() {
-        File db = getApplicationContext().getDatabasePath(SlateEntry.DATABASE_NAME);
-        if(db.exists()) {
-            return true;
-        } else {
-            return false;
-        }
+        SharedPreferences userPrefs = getPreferences(Context.MODE_PRIVATE);
+        currentPosition = userPrefs.getInt("current_position", 0);
+        mSectionViewPager.setCurrentItem(currentPosition);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        // Save current tab
+        mEditor.putInt("current_position", currentPosition);
+        mEditor.commit();
     }
 
     @Override
@@ -111,35 +102,26 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        if (id == R.id.action_search) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+        return id == R.id.action_search || super.onOptionsItemSelected(item);
     }
 
     @Override
     public void onTabSelected(Tab tab, FragmentTransaction ft) {
-        mSectionViewPager.setCurrentItem(tab.getPosition(), true);
+        currentPosition = tab.getPosition();
+        mSectionViewPager.setCurrentItem(currentPosition, true);
     }
 
     @Override
     public void onTabUnselected(Tab tab, FragmentTransaction ft) {
-        // TODO(jasonscott) Auto-generated method stub
     }
 
     @Override
     public void onTabReselected(Tab tab, FragmentTransaction ft) {
-        // TODO(jasonscott) Auto-generated method stub
     }
 
-    /**
-     *
-     */
-    public static class PocketSectionPagerAdapter extends FragmentStatePagerAdapter {
+    public static class PocketSectionPagerAdapter
+            extends FragmentStatePagerAdapter {
 
-        /**
-         * @param fm FragmentManager
-         */
         public PocketSectionPagerAdapter(FragmentManager fm) {
             super(fm);
         }
@@ -157,7 +139,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 
         @Override
         public int getCount() {
-            return COUNT;
+            return PAGE_COUNT;
         }
 
         @Override

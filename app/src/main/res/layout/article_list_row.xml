@@ -2,63 +2,31 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#FFCC00"
-    android:orientation="horizontal"
-    android:paddingLeft="5dp"
-    android:paddingRight="5dp"
-    android:paddingTop="5dp">
+    android:background="#dedede"
+    android:orientation="horizontal">
 
+    <ImageView
+        android:id="@+id/content_image"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:background="#000000" />
 
-    <RelativeLayout
-        android:id="@+id/content_header"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#3366CC"
-        android:paddingLeft="5dp"
-        android:paddingRight="5dp"
-        android:paddingTop="5dp">
-
-        <TextView
-            android:id="@+id/content_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="#dedede"
-            android:textSize="20sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/content_author"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/content_title"
-            android:background="#dedede"
-            android:textStyle="italic" />
-
-        <TextView
-            android:id="@+id/content_date"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/content_author"
-            android:background="#dedede" />
-
-    </RelativeLayout>
-
-    <RelativeLayout
+    <TextView
+        android:id="@+id/content_title"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/content_header"
-        android:background="#3366CC"
-        android:paddingLeft="5dp"
-        android:paddingRight="5dp"
-        android:paddingBottom="5dp">
+        android:layout_toEndOf="@+id/content_image"
+        android:background="#dedede"
+        android:textSize="20sp"
+        android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/content_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="#ffffff"
-            android:padding="2dp" />
-    </RelativeLayout>
-
+    <TextView
+        android:id="@+id/content_description"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/content_title"
+        android:layout_toEndOf="@id/content_image"
+        android:background="#dedede"
+        android:textStyle="italic" />
 
 </RelativeLayout>

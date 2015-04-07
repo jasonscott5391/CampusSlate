@@ -1,13 +1,13 @@
 /**
  * Copyright (C) 2014 Jason Scott
  */
-package edu.nyit.campusslate.utils;
+package edu.nyit.campusslate.data;
 
 import android.provider.BaseColumns;
 
 /**
  * <p>Title: PocketReaderContract.</p>
- *
+ * <p>Description:</p>
  * @author jasonscott
  */
 public class PocketReaderContract {

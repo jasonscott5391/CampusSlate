@@ -1,26 +1,29 @@
-apply plugin: 'android'
+apply plugin: 'com.android.application'
 
 android {
-    //compileSdkVersion 'android-L'
 
-    compileSdkVersion 20
-    buildToolsVersion '20.0.0'
+    compileSdkVersion 19
+    buildToolsVersion '22.0.1'
 
 
     defaultConfig {
         applicationId "edu.nyit.campusslate"
-        minSdkVersion 18
-        targetSdkVersion 20
+        minSdkVersion 19
+        targetSdkVersion 19
     }
 
     buildTypes {
         release {
-            runProguard false
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:20.0.0'
+    compile 'com.android.support:support-v4:22.0.0'
+    compile 'com.github.bumptech.glide:glide:3.5.2'
+//    compile 'javax.ws.rs:jsr311-api:1.1.1'
+//    compile 'xerces:xerces:2.4.0'
+//    compile 'org.apache.wink:wink-client:1.4'
 }

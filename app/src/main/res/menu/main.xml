@@ -1,6 +1,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="edu.nyit.campusslate.MainActivity" >
+    tools:context="edu.nyit.campusslate.activities.MainActivity" >
 
     <item
         android:id="@+id/action_search"

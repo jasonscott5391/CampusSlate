@@ -16,7 +16,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="edu.nyit.campusslate.MainActivity"
+            android:name=".activities.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -25,9 +25,9 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="edu.nyit.campusslate.ArticleActivity"
+            android:name=".activities.ArticleActivity"
             android:label="@string/app_name"
-            android:parentActivityName="edu.nyit.campusslate.MainActivity" >
+            android:parentActivityName=".activities.MainActivity" >
             <meta-data
                 android:name="android_support.PARENT_ACTIVITY"
                 android:value="edu.nyit.campusslate.MainActivity" />

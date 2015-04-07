@@ -1,7 +1,10 @@
 package edu.nyit.campusslate.exceptions;
 
 /**
- * Created by jasonscott on 8/3/14.
+ * <p>Title: PocketBuildException.java</p>
+ * <p>Description:</p>
+ *
+ * @author jasonscott
  */
 public class PocketBuildException extends Exception {
 

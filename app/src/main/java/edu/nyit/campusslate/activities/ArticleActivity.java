@@ -1,9 +1,11 @@
 /**
  * Copyright (C) 2014 Jason Scott
  */
-package edu.nyit.campusslate;
+package edu.nyit.campusslate.activities;
 
-import edu.nyit.campusslate.utils.PocketDbHelper;
+import edu.nyit.campusslate.fragments.ArticleFragment;
+import edu.nyit.campusslate.R;
+import edu.nyit.campusslate.data.PocketDbHelper;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -22,25 +24,20 @@ import java.util.Locale;
  */
 public class ArticleActivity extends FragmentActivity {
 
-	private PocketArticlePagerAdapter mArticlePagerAdapter;
-	private ViewPager mArticleViewPager;
-	private String mSectionTitle;
-	private String mArticleId;
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_article);
 
-		mSectionTitle = getIntent().getBundleExtra("article").getString("section_title");
-		mArticleId = getIntent().getBundleExtra("article").getString("article_id");
-		mArticlePagerAdapter = new PocketArticlePagerAdapter(getSupportFragmentManager(),
-                this, mSectionTitle.toLowerCase(Locale.US));
+		String mSectionTitle = getIntent().getBundleExtra("article").getString("section_title");
+		String mArticleId = getIntent().getBundleExtra("article").getString("article_id");
+		PocketArticlePagerAdapter mArticlePagerAdapter = new PocketArticlePagerAdapter(getSupportFragmentManager(),
+				this, mSectionTitle.toLowerCase(Locale.US));
 
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 		getActionBar().setDisplayShowTitleEnabled(false);
 
-		mArticleViewPager = (ViewPager) findViewById(R.id.article_pager);
+		ViewPager mArticleViewPager = (ViewPager) findViewById(R.id.article_pager);
 		mArticleViewPager.setAdapter(mArticlePagerAdapter);
 
 		mArticleViewPager.setCurrentItem(Integer.valueOf(mArticleId));

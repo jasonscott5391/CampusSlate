@@ -25,7 +25,7 @@
             android:layout_width="match_parent"
             android:layout_height="350dp"
             android:layout_below="@id/article_number"
-            android:background="#90000000"/>
+            android:background="#000000"/>
 
         <TextView
             android:id="@+id/article_date"
