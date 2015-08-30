@@ -2,14 +2,14 @@ apply plugin: 'com.android.application'
 
 android {
 
-    compileSdkVersion 19
+    compileSdkVersion 22
     buildToolsVersion '22.0.1'
 
 
     defaultConfig {
-        applicationId "edu.nyit.campusslate"
+        applicationId "com.nyit.pocketslate"
         minSdkVersion 19
-        targetSdkVersion 19
+        targetSdkVersion 22
     }
 
     buildTypes {
@@ -23,7 +23,4 @@ android {
 dependencies {
     compile 'com.android.support:support-v4:22.0.0'
     compile 'com.github.bumptech.glide:glide:3.5.2'
-//    compile 'javax.ws.rs:jsr311-api:1.1.1'
-//    compile 'xerces:xerces:2.4.0'
-//    compile 'org.apache.wink:wink-client:1.4'
 }

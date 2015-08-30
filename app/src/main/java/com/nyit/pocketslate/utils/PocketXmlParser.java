@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2014 Jason Scott
  */
-package com.nyit.campusslate.utils;
+package com.nyit.pocketslate.utils;
 
-import com.nyit.campusslate.data.PocketDbHelper;
-import com.nyit.campusslate.data.PocketReaderContract;
-import com.nyit.campusslate.normalized.Entry;
-import com.nyit.campusslate.exceptions.PocketBuildException;
+import com.nyit.pocketslate.data.PocketDbHelper;
+import com.nyit.pocketslate.data.PocketReaderContract;
+import com.nyit.pocketslate.normalized.Entry;
+import com.nyit.pocketslate.exceptions.PocketSlateException;
 
 import android.content.Context;
 
@@ -25,9 +25,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * <p>Title: PocketXmlParser.</p>
- * <p>Description: Custom XML parser for consuming RSS
- * feed from Campus Slate.</p>
+ * <p>PocketXmlParser.java</p>
+ * <p><t>Custom XML parser for consuming RSS
+ * feed from Campus Slate.</t></p>
  *
  * @author jasonscott
  */
@@ -48,7 +48,7 @@ public class PocketXmlParser {
             Context context,
             String section,
             long lastRefresh)
-            throws PocketBuildException {
+            throws PocketSlateException {
 
         PocketDbHelper dbHelper = PocketDbHelper.getInstance(context);
 
@@ -62,21 +62,13 @@ public class PocketXmlParser {
 
         }
 
-        ArrayList<Entry> entries = new ArrayList<Entry>();
+        ArrayList<Entry> entries = new ArrayList<>();
 
         XmlPullParserFactory factory;
         XmlPullParser parser;
 
 
-        String title = null;
-        String link = null;
-        long pubDate = 0L;
-        String creator = null;
-        String category = null;
-        String description = null;
-        String content = null;
-        String imageUrl = null;
-        int bookmarked = 0;
+        entry = new Entry();
 
         try {
             factory = XmlPullParserFactory.newInstance();
@@ -106,27 +98,16 @@ public class PocketXmlParser {
                             long build =
                                     simpleDateFormat.parse(eventText).getTime();
                             if (build < lastRefresh) {
-                                throw new PocketBuildException(String.format("LastBuildDate: %s, LastRefresh: %s", new Date(build), new Date(lastRefresh)));
+                                throw new PocketSlateException(String.format("LastBuildDate: %s, LastRefresh: %s", new Date(build), new Date(lastRefresh)));
                             }
                         }
                         if (tagName.equalsIgnoreCase("item")) {
-
-                            entry = new Entry();
-                            entry.setTitle(title);
-                            entry.setLink(link);
-                            entry.setPublicationDate(pubDate);
-                            entry.setCreator(creator);
-                            entry.setCategory(category);
-                            entry.setDescription(description);
-                            entry.setContent(content);
-                            entry.setImageUrl(imageUrl);
-                            entry.setBookmarked(bookmarked);
-
                             entries.add(entry);
+                            entry = new Entry();
                         } else if (tagName.equalsIgnoreCase("title")) {
-                            title = eventText;
+                            entry.setTitle(eventText);
                         } else if (tagName.equalsIgnoreCase("link")) {
-                            link = eventText;
+                            entry.setLink(eventText);
                         } else if (tagName.equalsIgnoreCase("pubDate")) {
                             if (eventText != null) {
                                 Date date = simpleDateFormat.parse(eventText);
@@ -135,29 +116,42 @@ public class PocketXmlParser {
                                 if (current == limit) {
                                     break parse;
                                 }
-                                pubDate = date.getTime();
+                                entry.setPublicationDate(date.getTime());
                             }
                         } else if (tagName.equalsIgnoreCase("creator")) {
-                            creator = eventText;
+                            entry.setCreator(eventText);
                         } else if (tagName.equalsIgnoreCase("category")) {
-                            category = eventText;
+                            entry.setCategory(eventText);
                         } else if (tagName.equalsIgnoreCase("description")) {
-                            description = eventText;
+                            entry.setDescription(eventText);
                         } else if (tagName
                                 .equalsIgnoreCase("encoded")) {
                             String regexImage = "(?<=<img src=\")[^\"]*.jpg|"
                                     + "(?<=<img src=\")[^\"]*.png|"
                                     + "(?<=<img src=\")[^\"]*.jpeg|"
-                                    //TODO (jasonscott) Check for missing image extensions.
                                     + "(?<=<img src=\")[^\"]*.jpg|"
                                     + "(?<=<img src=\")[^\"]*.gif|"
                                     + "(?<=<img src=\")[^\"]*.bmp";
                             Pattern pattern = Pattern.compile(regexImage);
-                            Matcher matcher = pattern.matcher(eventText);
-                            while (matcher.find()) {
-                                imageUrl = matcher.group();
+                            Matcher matcher = null;
+
+                            if (eventText != null) {
+                                matcher = pattern.matcher(eventText);
                             }
-                            content = eventText.replaceAll("\\<.*?>", "");
+
+                            if (matcher != null) {
+
+                                if (matcher.find()) {
+                                    entry.setImageUrl(matcher.group());
+                                } else {
+                                    entry.setImageUrl("");
+
+                                }
+                            }
+
+                            if (eventText != null) {
+                                entry.setContent(eventText.replaceAll("<(?>/?)(?:[^pP]|[pP][^\\s>/])[^>]*>", ""));
+                            }
                         }
                         break;
                     default:
@@ -165,11 +159,7 @@ public class PocketXmlParser {
                 }
                 eventType = parser.next();
             }
-        } catch (XmlPullParserException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
+        } catch (XmlPullParserException | IOException | ParseException e) {
             e.printStackTrace();
         }
 

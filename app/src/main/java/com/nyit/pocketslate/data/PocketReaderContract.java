@@ -1,23 +1,25 @@
 /**
  * Copyright (C) 2014 Jason Scott
  */
-package com.nyit.campusslate.data;
+package com.nyit.pocketslate.data;
 
 import android.provider.BaseColumns;
 
 /**
- * <p>Title: PocketReaderContract.</p>
- * <p>Description:</p>
+ * <p>PocketReaderContract.java</p>
+ * <p><t>Container class for constants that define names for
+ * URIs, tables, and columns for SQLite database.</t></p>
+ *
  * @author jasonscott
  */
 public class PocketReaderContract {
-    //COMPLETE
+
     public PocketReaderContract() {
-    } // Empty Constructor
+    } // Explicitly define empty constructor
 
     /**
-     * <p>Title: SlateEntry.</p>
-     * <p>Inner class that defines the tables contents.</p>
+     * <p>SlateEntry</p>
+     * <p><t>Inner class that defines the tables contents.</t></p>
      */
     public abstract static class SlateEntry implements BaseColumns {
 
@@ -32,7 +34,8 @@ public class PocketReaderContract {
                 "Features",
                 "Sports",
                 "Editorials",
-                "Staff"
+                "Staff",
+                "Saved"
         };
 
         // Database column names
@@ -44,8 +47,7 @@ public class PocketReaderContract {
                 "category",
                 "description",
                 "content",
-                "image_url",
-                "bookmarked"
+                "image_url"
         };
 
         // Column name index identifiers
@@ -57,7 +59,6 @@ public class PocketReaderContract {
         public static final int DESCRIPTION = 5;
         public static final int CONTENT = 6;
         public static final int IMAGE_URL = 7;
-        public static final int BOOKMARKED = 8;
 
         // Database table names
         public static final String[] TABLE_NAMES = {
@@ -66,7 +67,7 @@ public class PocketReaderContract {
                 "sports",
                 "editorials",
                 "staff",
-                "bookmarks"
+                "saved"
         };
 
         // SimpleDateFormat Pattern

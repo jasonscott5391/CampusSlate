@@ -1,15 +1,15 @@
 /**
  * Copyright (C) 2014 Jason Scott
  */
-package com.nyit.campusslate.fragments;
+package com.nyit.pocketslate.fragments;
 
-import com.nyit.campusslate.R;
-import com.nyit.campusslate.activities.ArticleActivity;
-import com.nyit.campusslate.exceptions.PocketBuildException;
-import com.nyit.campusslate.utils.PocketUtils;
-import com.nyit.campusslate.utils.PocketListAdapter;
-import com.nyit.campusslate.data.PocketReaderContract.SlateEntry;
-import com.nyit.campusslate.utils.PocketXmlParser;
+import com.nyit.pocketslate.R;
+import com.nyit.pocketslate.activities.ArticleActivity;
+import com.nyit.pocketslate.exceptions.PocketSlateException;
+import com.nyit.pocketslate.utils.PocketUtils;
+import com.nyit.pocketslate.utils.PocketListAdapter;
+import com.nyit.pocketslate.data.PocketReaderContract.SlateEntry;
+import com.nyit.pocketslate.utils.PocketXmlParser;
 
 import android.content.Context;
 import android.content.Intent;
@@ -32,8 +32,9 @@ import java.util.Locale;
 
 
 /**
- * <p>Title: ArticleListFragment.</p>
- * <p>Description: </p>
+ * <p>ArticleListFragment.java</p>
+ * <p><t>Fragment containing a list of articles.  The group of
+ * articles are refreshed by using swipe refresh.</t></p>
  *
  * @author jasonscott
  */
@@ -42,6 +43,7 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
     private static final long FIFTEEN_MINUTES = 1000 * 60 * 15;
     private static final String UPDATE = "UPDATING...";
 
+    private ListView mArticleList;
     private SwipeRefreshLayout mSwipeRefresh;
     private PocketListAdapter mListAdapter;
     private View mArticleHeader;
@@ -50,7 +52,6 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
     private AggregatorTask mAsyncTask = new AggregatorTask();
     private Long mLastRefresh;
     private SharedPreferences.Editor mEditor;
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -72,7 +73,8 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
         View view;
 
         view = inflater.inflate(R.layout.fragment_article_list, container, false);
-        ListView mArticleList = (ListView) view.findViewById(R.id.article_list_view);
+
+        mArticleList = (ListView) view.findViewById(R.id.article_list_view);
         mArticleList.addHeaderView(mArticleHeader);
         mListAdapter = new PocketListAdapter(getActivity(),
                 mSectionTitle.toLowerCase(Locale.US));
@@ -85,6 +87,7 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
                 R.color.nyit_blue,
                 R.color.nyit_blue,
                 R.color.nyit_yellow);
+
 
         return view;
     }
@@ -99,26 +102,44 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
             onRefresh();
         } else {
             mArticleHeaderText.setText("Last Update on " + new Date(mLastRefresh).toString());
+
+            int position = userPrefs.getInt(mSectionTitle + "_last_index", 0);
+            int offset = userPrefs.getInt(mSectionTitle + "_last_index_offset", 0);
+
+            if (position != 0
+                    && offset != 0) {
+                mArticleList.setSelectionFromTop(position, offset);
+            }
         }
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        //TODO(jasonscott) Save page state.
+        int position = mArticleList.getFirstVisiblePosition();
+        View v = mArticleList.getChildAt(0);
+        int offset = (v == null) ? 0 : (v.getTop() - mArticleList.getPaddingTop());
+        mEditor.putInt(mSectionTitle + "_last_index", position);
+        mEditor.putInt(mSectionTitle + "_last_index_offset", offset);
+        mEditor.commit();
     }
 
     @Override
     public void onRefresh() {
         if (mAsyncTask != null) {
+            mSwipeRefresh.setRefreshing(true);
             mArticleHeaderText.setText(UPDATE);
             mAsyncTask.execute(mSectionTitle.toLowerCase(Locale.US));
-            mSwipeRefresh.setRefreshing(true);
         } else {
             mSwipeRefresh.setRefreshing(false);
         }
     }
 
+    /**
+     * Updates and modifies fields after refresh finishes.
+     *
+     * @param headerText Specified ListView header text.
+     */
     private void updateAfter(String headerText) {
         mLastRefresh = System.currentTimeMillis();
         mEditor.putLong("last_refresh_" + mSectionTitle, mLastRefresh);
@@ -127,6 +148,7 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
         mSwipeRefresh.setRefreshing(false);
     }
 
+    // Listener for selecting an article.
     private class ArticleListClickListener implements ListView.OnItemClickListener {
 
         @Override
@@ -135,8 +157,8 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
                                 int position,
                                 long id) {
             Bundle bundle = new Bundle();
-            bundle.putString("section_title", mSectionTitle);
-            bundle.putString("article_id", String.valueOf(position - 1));
+            bundle.putString("article_section", mSectionTitle);
+            bundle.putInt("article_id", position);
             Intent intent = new Intent(getActivity(), ArticleActivity.class);
             intent.putExtra("article", bundle);
             startActivity(intent);
@@ -145,7 +167,7 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
 
     }
 
-    // Asyncronous task to make network connection and parse RSS feed    implements PocketCallBack
+    // Asynchronous task to make network connection and parse RSS feed...
     public class AggregatorTask extends AsyncTask<String, Integer, Integer> {
 
         private String cancelMessage = null;
@@ -163,7 +185,7 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
                 if (count == -1) {
                     this.cancel(true);
                 }
-            } catch (PocketBuildException e) {
+            } catch (PocketSlateException e) {
                 // Articles are up to date.
                 cancelMessage = "Articles Up To Date";
                 this.cancel(true);
@@ -197,12 +219,14 @@ public class ArticleListFragment extends Fragment implements SwipeRefreshLayout.
         }
 
         /**
+         * Returns the number of records downloaded and parsed from the RSS feed.
+         *
          * @param url     Campus Slate section URL.
          * @param section Campus Slate section.
-         * @return Returns number of articles downloaded.
+         * @return Number of records downloaded and parsed.
          * @throws IOException
          */
-        private Integer downloadXml(URL url, String section) throws PocketBuildException, IOException {
+        private Integer downloadXml(URL url, String section) throws PocketSlateException, IOException {
             return PocketXmlParser.parse(PocketUtils.downloadUrl(url), getActivity(), section, mLastRefresh);
         }
     }

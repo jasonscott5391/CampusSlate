@@ -1,11 +1,12 @@
 /**
  * Copyright (C) 2014 Jason Scott
  */
-package com.nyit.campusslate.activities;
+package com.nyit.pocketslate.activities;
 
-import com.nyit.campusslate.fragments.ArticleListFragment;
-import com.nyit.campusslate.R;
-import com.nyit.campusslate.data.PocketReaderContract.SlateEntry;
+import com.nyit.pocketslate.fragments.ArticleListFragment;
+import com.nyit.pocketslate.R;
+import com.nyit.pocketslate.data.PocketReaderContract.SlateEntry;
+import com.nyit.pocketslate.fragments.SavedArticleListFragment;
 
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
@@ -22,8 +23,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 /**
- * <p>Title: MainActivity.java</p>
- * <p>Description:</p>
+ * <p>MainActivity.java</p>
+ * <p><t>Central activity for the application.  Defines the ActionBar and
+ * ViewPager for swiping through the various sections.</t></p>
  *
  * @author jasonscott
  */
@@ -33,7 +35,7 @@ public class MainActivity
 
     private ViewPager mSectionViewPager;
 
-    private static final int PAGE_COUNT = 5;
+    private static final int PAGE_COUNT = 6;
 
     private static int currentPosition = 0;
 
@@ -58,6 +60,7 @@ public class MainActivity
                 new ViewPager.SimpleOnPageChangeListener() {
                     @Override
                     public void onPageSelected(int position) {
+                        assert actionBar != null;
                         actionBar.setSelectedNavigationItem(position);
                     }
                 }
@@ -65,6 +68,7 @@ public class MainActivity
 
 
         for (int i = 0; i < mSectionPagerAdapter.getCount(); i++) {
+            assert actionBar != null;
             actionBar.addTab(actionBar.newTab().setText(
                     mSectionPagerAdapter.getPageTitle(i)).setTabListener(this));
         }
@@ -129,7 +133,14 @@ public class MainActivity
         @Override
         public Fragment getItem(int position) {
 
-            ArticleListFragment fragment = new ArticleListFragment();
+            Fragment fragment;
+
+            if (position == (PAGE_COUNT - 1)) {
+                fragment = new SavedArticleListFragment();
+            } else {
+                fragment = new ArticleListFragment();
+            }
+
             Bundle args = new Bundle();
             args.putString("title", SlateEntry.PAGE_NAMES[position]);
             fragment.setArguments(args);

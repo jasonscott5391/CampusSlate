@@ -1,4 +1,4 @@
-package com.nyit.campusslate.utils;
+package com.nyit.pocketslate.utils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -6,12 +6,16 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 /**
- * Created by jasonscott on 4/6/15.
+ * <p>PocketUtils.java</p>
+ * <p><t>Utility class for commonly used methods.</t></p>
+ *
+ * @author jasonscott
  */
 public class PocketUtils {
 
     /**
      * Returns InputStream for specified URL.
+     *
      * @param url Specified URL.
      * @return InputStream
      * @throws IOException

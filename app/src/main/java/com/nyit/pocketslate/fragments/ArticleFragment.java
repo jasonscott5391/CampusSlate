@@ -1,17 +1,21 @@
 /**
  * Copyright (C) 2014 Jason Scott
  */
-package com.nyit.campusslate.fragments;
+package com.nyit.pocketslate.fragments;
 
-import com.nyit.campusslate.R;
-import com.nyit.campusslate.normalized.Entry;
-import com.nyit.campusslate.data.PocketDbHelper;
+import com.nyit.pocketslate.R;
+import com.nyit.pocketslate.normalized.Entry;
+import com.nyit.pocketslate.data.PocketDbHelper;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.Html;
+import android.text.Spanned;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -21,12 +25,13 @@ import java.util.Date;
 import java.util.Locale;
 
 /**
- * <p>Title: ArticleFragment.</p>
- * <p>Description:</p>
+ * <p>ArticleFragment.java</p>
+ * <p><t>Fragment for displaying an Article.</t></p>
  *
  * @author jasonscott
  */
 public class ArticleFragment extends Fragment {
+    private Entry entry;
     private ImageView mArticleImage;
     private String mArticleSection;
     private int mArticleId;
@@ -38,7 +43,7 @@ public class ArticleFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mArticleSection = getArguments().getString("section_title");
+        mArticleSection = getArguments().getString("article_section");
         mArticleId = getArguments().getInt("article_id");
         mNumEntries = PocketDbHelper.getInstance(getActivity())
                 .getNumEntries(mArticleSection.toLowerCase(Locale.US));
@@ -58,11 +63,18 @@ public class ArticleFragment extends Fragment {
         TextView mArticleAuthor = (TextView) view.findViewById(R.id.article_author);
         TextView mArticleContent = (TextView) view.findViewById(R.id.article_content);
 
-        Entry entry = PocketDbHelper.getInstance(getActivity())
+        entry = PocketDbHelper.getInstance(getActivity())
                 .retrieveEntry(mArticleSection.toLowerCase(Locale.US),
                         String.valueOf(mArticleId + 1));
 
-        Glide.with(getActivity()).load(entry.getImageUrl()).into(mArticleImage);
+        Uri uri;
+        if (entry.getImageUrl().equals("")) {
+            uri = Uri.parse("android.resource://" + getActivity().getPackageName() + "/" + R.drawable.ic_launcher);
+        } else {
+            uri = Uri.parse(entry.getImageUrl());
+        }
+
+        Glide.with(getActivity()).load(uri).into(mArticleImage);
 
         String position;
         if (mArticleId == 0) {
@@ -77,11 +89,9 @@ public class ArticleFragment extends Fragment {
         mArticleDate.setText(new Date(entry.getPublicationDate()).toString());
         mArticleTitle.setText(entry.getTitle());
         mArticleAuthor.setText(entry.getCreator());
-        mArticleContent.setText(entry.getContent());
+        Spanned spanned = Html.fromHtml(entry.getContent());
+        mArticleContent.setText(spanned);
 
         return view;
     }
-
-    //TODO(jasonscott) OptionsMenu for add to saved stories, open in browser, and find in page
-
 }

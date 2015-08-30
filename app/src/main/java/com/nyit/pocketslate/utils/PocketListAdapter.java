@@ -1,14 +1,15 @@
 /**
  * Copyright (C) 2014 Jason Scott
  */
-package com.nyit.campusslate.utils;
+package com.nyit.pocketslate.utils;
 
-import com.nyit.campusslate.data.PocketDbHelper;
-import com.nyit.campusslate.normalized.Entry;
-import com.nyit.campusslate.R;
+import com.nyit.pocketslate.data.PocketDbHelper;
+import com.nyit.pocketslate.normalized.Entry;
+import com.nyit.pocketslate.R;
 
 import android.app.Activity;
 import android.content.Context;
+import android.net.Uri;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,8 +23,8 @@ import com.bumptech.glide.Glide;
 import java.util.ArrayList;
 
 /**
- * <p>Title: ArticleListAdapter.</p>
- * <p>Description:</p>
+ * <p>ArticleListAdapter.java</p>
+ * <p><t>Adapter for ListView of articles.</t></p>
  *
  * @author jasonscott
  */
@@ -31,9 +32,6 @@ public class PocketListAdapter extends BaseAdapter {
     private Activity mActivity;
     private static LayoutInflater sInflater;
     private static PocketDbHelper mPocketDbHelper;
-    private ImageView mArticleImage;
-    private TextView mTitleView;
-    private TextView mDescriptionView;
     private ArrayList<Entry> mEntries;
     private String mTableName;
 
@@ -42,7 +40,7 @@ public class PocketListAdapter extends BaseAdapter {
         mTableName = table;
         sInflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mPocketDbHelper = PocketDbHelper.getInstance(mActivity);
-        mEntries = mPocketDbHelper.retrieveTable(table);
+        mEntries = mPocketDbHelper.retrieveEntries(table);
 
     }
 
@@ -65,16 +63,27 @@ public class PocketListAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         Entry entry = mEntries.get(position);
+
         if (convertView == null) {
             convertView = sInflater.inflate(R.layout.article_list_row, null);
         }
 
-        mArticleImage = (ImageView) convertView.findViewById(R.id.content_image);
-        mTitleView = (TextView) convertView.findViewById(R.id.content_title);
-        mDescriptionView = (TextView) convertView.findViewById(R.id.content_description);
+        ImageView mArticleImage = (ImageView) convertView.findViewById(R.id.content_image);
+        TextView mTitleView = (TextView) convertView.findViewById(R.id.content_title);
+        TextView mDescriptionView = (TextView) convertView.findViewById(R.id.content_description);
+
+
+        Uri uri;
+        if (entry.getImageUrl().equals("")) {
+            uri = Uri.parse("android.resource://"
+                    + mActivity.getPackageName()
+                    + "/" + R.drawable.ic_launcher);
+        } else {
+            uri = Uri.parse(entry.getImageUrl());
+        }
 
         Glide.with(mActivity)
-                .load(entry.getImageUrl())
+                .load(uri)
                 .placeholder(R.drawable.ic_action_refresh)
                 .crossFade()
                 .into(mArticleImage);
@@ -88,6 +97,6 @@ public class PocketListAdapter extends BaseAdapter {
     @Override
     public void notifyDataSetChanged() {
         super.notifyDataSetChanged();
-        mEntries = mPocketDbHelper.retrieveTable(mTableName);
+        mEntries = mPocketDbHelper.retrieveEntries(mTableName);
     }
 }
