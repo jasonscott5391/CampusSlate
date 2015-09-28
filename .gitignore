@@ -1,3 +1,6 @@
 # Created by .gitignore support plugin (hsz.mobi)
 app.iml
 CampusSlate.iml
+/.idea/runConfigurations.xml
+/.idea/workspace.xml
+checkstyle-idea.xml
