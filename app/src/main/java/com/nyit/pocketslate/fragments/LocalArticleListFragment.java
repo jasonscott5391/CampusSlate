@@ -20,19 +20,49 @@ import com.nyit.pocketslate.utils.PocketListAdapter;
 import java.util.Locale;
 
 /**
- * <p>SavedArticleListFragment.java</p>
- * <p><t>Fragment containing a list of SAVED articles.  Needed
+ * <p>LocalArticleListFragment.java</p>
+ * <p><t>Fragment containing a list of SAVED or SEARCHED articles.  Needed
  * a different class to disable swipe refresh.</t></p>
  *
  * @author jasonscott
  */
-public class SavedArticleListFragment extends Fragment {
+public class LocalArticleListFragment extends Fragment {
 
     private ListView mArticleList;
+    private PocketListAdapter mListAdapter;
     private View mArticleHeader;
     private TextView mArticleHeaderText;
     private String mSectionTitle;
     private SharedPreferences.Editor mEditor;
+    private LocalListType localListType;
+
+    public enum LocalListType {
+        SAVED("SAVED"),
+        SEARCHED("SEARCHED");
+
+        private String type;
+
+        LocalListType(String type) {
+            this.type = type;
+        }
+
+        public String toString() {
+            return this.type;
+        }
+
+        public LocalListType fromType(String type) {
+            if (type != null
+                    && !type.isEmpty()) {
+                for (LocalListType localListType : LocalListType.values()) {
+                    if (type.equalsIgnoreCase(localListType.type)) {
+                        return localListType;
+                    }
+                }
+            }
+
+            return null;
+        }
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -57,9 +87,9 @@ public class SavedArticleListFragment extends Fragment {
 
         mArticleList = (ListView) view.findViewById(R.id.article_list_view);
         mArticleList.addHeaderView(mArticleHeader);
-        PocketListAdapter listAdapter = new PocketListAdapter(getActivity(),
+        mListAdapter = new PocketListAdapter(getActivity(),
                 mSectionTitle.toLowerCase(Locale.US));
-        mArticleList.setAdapter(listAdapter);
+        mArticleList.setAdapter(mListAdapter);
         mArticleList.setOnItemClickListener(new ArticleListClickListener());
         SwipeRefreshLayout swipeRefresh = (SwipeRefreshLayout) view.findViewById(R.id.swipe_refresh);
         swipeRefresh.setEnabled(false);
@@ -70,7 +100,18 @@ public class SavedArticleListFragment extends Fragment {
     public void onResume() {
         super.onResume();
         SharedPreferences userPrefs = getActivity().getPreferences(Context.MODE_PRIVATE);
-        mArticleHeaderText.setText((mArticleList.getCount() - 1) + " SAVED ARTICLES...");
+
+        String headerText = "";
+
+        if (this.localListType.toString().equalsIgnoreCase("SAVED")) {
+            headerText = String.format("%s SAVED ARTICLES...", (mArticleList.getCount() - 1));
+        } else if (this.localListType.toString().equalsIgnoreCase("SEARCHED")) {
+            String lastQuery = userPrefs.getString("lastQuery", null);
+            String resultsCount = String.valueOf(userPrefs.getInt("lastQueryResultsCount", (mArticleList.getCount() - 1)));
+            headerText = String.format("%s ARTICLES RETURNED FOR SEARCH %s...", resultsCount, lastQuery != null ? lastQuery : "");
+        }
+
+        setHeaderText(headerText);
 
         int position = userPrefs.getInt(mSectionTitle + "_last_index", 0);
         int offset = userPrefs.getInt(mSectionTitle + "_last_index_offset", 0);
@@ -108,6 +149,45 @@ public class SavedArticleListFragment extends Fragment {
             startActivity(intent);
 
         }
+    }
 
+    public LocalListType getLocalListType() {
+        return localListType;
+    }
+
+    public void setLocalListType(LocalListType localListType) {
+        this.localListType = localListType;
+    }
+
+    /**
+     * Sets the text of the header TextView with the specified headerText.
+     *
+     * @param headerText Specified text.
+     */
+    private void setHeaderText(String headerText) {
+        mArticleHeaderText.setText(headerText);
+    }
+
+    /**
+     * Returns the title of this fragments section.
+     *
+     * @return String of the section.
+     */
+    public String getSectionTitle() {
+        return mSectionTitle;
+    }
+
+    /**
+     *
+     */
+    public void updatedSearch() {
+        SharedPreferences userPrefs = getActivity().getPreferences(Context.MODE_PRIVATE);
+        String headerText = String.format("%s ARTICLES RETURNED FOR SEARCH %s...",
+                userPrefs.getInt("lastQueryResultsCount", (mArticleList.getCount() - 1)),
+                userPrefs.getString("lastQuery", ""));
+
+        setHeaderText(headerText);
+
+        mListAdapter.notifyDataSetChanged();
     }
 }

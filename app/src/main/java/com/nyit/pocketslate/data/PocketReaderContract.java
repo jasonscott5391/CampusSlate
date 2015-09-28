@@ -35,7 +35,8 @@ public class PocketReaderContract {
                 "Sports",
                 "Editorials",
                 "Staff",
-                "Saved"
+                "Saved",
+                "Search"
         };
 
         // Database column names
@@ -67,7 +68,8 @@ public class PocketReaderContract {
                 "sports",
                 "editorials",
                 "staff",
-                "saved"
+                "saved",
+                "search"
         };
 
         // SimpleDateFormat Pattern

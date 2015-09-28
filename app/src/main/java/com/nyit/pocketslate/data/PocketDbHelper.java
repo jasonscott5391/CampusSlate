@@ -138,6 +138,8 @@ public class PocketDbHelper extends SQLiteOpenHelper {
             Log.e(String.format("%s.insertEntries", getClass().getSimpleName()), String.format("%s: ERROR inserting Entry: %s", e.getMessage(), entries.get(entryCount - 1)));
         }
 
+        Log.d(String.format("%s.insertEntries", getClass().getSimpleName()), String.format("%s entries inserted for table %s.", entryCount, table));
+
         return entryCount;
     }
 
@@ -190,7 +192,6 @@ public class PocketDbHelper extends SQLiteOpenHelper {
         Entry entry = null;
 
         try {
-
             SQLiteDatabase db = getReadableDatabase();
             String selection = SlateEntry._ID + " = ?";
             String[] selectionArgs = {String.valueOf(id)};
@@ -283,7 +284,7 @@ public class PocketDbHelper extends SQLiteOpenHelper {
             result = numRows == 1;
         } catch (Exception e) {
             e.printStackTrace();
-            Log.e(String.format("%s.deleteTable", getClass().getSimpleName()), String.format("%s: ERROR checking if entry with publication date %s is bookmarked", e.getMessage(), publicationDate));
+            Log.e(String.format("%s.deleteEntry", getClass().getSimpleName()), String.format("%s: ERROR checking if entry with publication date %s is bookmarked", e.getMessage(), publicationDate));
         }
 
         return result;
@@ -323,7 +324,7 @@ public class PocketDbHelper extends SQLiteOpenHelper {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Log.e(String.format("%s.deleteTable", getClass().getSimpleName()), String.format("%s: ERROR checking if entry with publication date %s is bookmarked", e.getMessage(), publicationDate));
+            Log.e(String.format("%s.isBookmarked", getClass().getSimpleName()), String.format("%s: ERROR checking if entry with publication date %s is bookmarked", e.getMessage(), publicationDate));
         }
 
         return bookmarked;
@@ -345,7 +346,7 @@ public class PocketDbHelper extends SQLiteOpenHelper {
 
         } catch (Exception e) {
             e.printStackTrace();
-            Log.e(String.format("%s.deleteTable", getClass().getSimpleName()), String.format("%s: ERROR deleting table: %s", e.getMessage(), table));
+            Log.e(String.format("%s.getNumEntries", getClass().getSimpleName()), String.format("%s: ERROR deleting table: %s", e.getMessage(), table));
         }
 
         return numEntries;
@@ -385,5 +386,50 @@ public class PocketDbHelper extends SQLiteOpenHelper {
         entry.setImageUrl(cursor.getString(8));             // Image URL
 
         return entry;
+    }
+
+    /**
+     * Returns an ArrayList of Entries that matched the specified
+     * query in the specified column from the specified table if any.
+     *
+     * @param table  Specified table name.
+     * @param column Specified column name.
+     * @param query  Specified query String.
+     * @return ArrayList of type Entry.
+     */
+    public ArrayList<Entry> getEntriesMatching(String table, String column, String query) {
+
+        ArrayList<Entry> entries = new ArrayList<>();
+
+        String selection = String.format("%s LIKE ?", column);
+        String[] selectionArgs = new String[]{"%" + query + "%"};
+
+        try {
+
+            SQLiteDatabase db = getReadableDatabase();
+
+            Cursor cursor = db.query(table, null, selection, selectionArgs, null, null, null);
+
+            if (cursor != null
+                    && cursor.moveToFirst()) {
+                do {
+                    entries.add(getEntryFromCursor(cursor));
+                } while (cursor.moveToNext());
+                cursor.close();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e(String.format("%s.query", getClass().getSimpleName()), String.format("%s: ERROR querying table %s with selection %s and selection arguments %s!",
+                    e.getMessage(),
+                    table,
+                    selection,
+                    selectionArgs));
+        }
+
+
+        Log.d(String.format("%s.getEntriesMatching", getClass().getSimpleName()), String.format("Query %s on table %s and column %s returned %s results!", query, table, column, entries.size()));
+
+        return entries;
     }
 }
