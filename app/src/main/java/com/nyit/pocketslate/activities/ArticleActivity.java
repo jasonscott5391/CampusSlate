@@ -9,6 +9,8 @@ import com.nyit.pocketslate.data.PocketDbHelper;
 import com.nyit.pocketslate.normalized.Entry;
 
 import android.app.ActionBar;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -18,6 +20,7 @@ import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ShareActionProvider;
 import android.widget.Toast;
 
 import java.util.List;
@@ -37,6 +40,7 @@ public class ArticleActivity extends FragmentActivity {
     private PocketArticlePagerAdapter mArticlePagerAdapter;
     private ViewPager mArticleViewPager;
     private Menu mMenu;
+    private ShareActionProvider mShareActionProvider;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +74,13 @@ public class ArticleActivity extends FragmentActivity {
         mMenu = menu;
         getMenuInflater().inflate(R.menu.article, menu);
         setSavedMenuItem();
+
+        MenuItem shareMenuItem = mMenu.findItem(R.id.action_share);
+
+        mShareActionProvider = (ShareActionProvider) shareMenuItem.getActionProvider();
+
+        setShareIntent();
+
         return true;
     }
 
@@ -91,8 +102,7 @@ public class ArticleActivity extends FragmentActivity {
 
                 break;
 
-            case R.id.action_find_in_page:
-
+            case R.id.action_share:
                 break;
 
             default:
@@ -180,6 +190,8 @@ public class ArticleActivity extends FragmentActivity {
         if (mCurrentEntry != null) {
             mIsSaved = PocketDbHelper.getInstance(this).isBookmarked(String.valueOf(mCurrentEntry.getPublicationDate()));
         }
+
+        setShareIntent();
     }
 
     /**
@@ -193,6 +205,26 @@ public class ArticleActivity extends FragmentActivity {
         menuItem.setIcon(resId).setTitle(saveText);
     }
 
+    /**
+     * Sets the Intent for sharing the link to the current Entry.
+     */
+    private void setShareIntent() {
+
+        if (mCurrentEntry != null) {
+
+            Intent shareIntent = new Intent();
+            shareIntent.setAction(Intent.ACTION_SEND);
+
+            shareIntent.setType("text/plain");
+            shareIntent.putExtra(Intent.EXTRA_SUBJECT, mCurrentEntry.getTitle());
+            shareIntent.putExtra(Intent.EXTRA_TEXT, mCurrentEntry.getLink());
+
+            if (mShareActionProvider != null) {
+                mShareActionProvider.setShareIntent(shareIntent);
+            }
+
+        }
+    }
 
     /**
      * <p>Title: PocketArticlePagerAdapter.</p>
