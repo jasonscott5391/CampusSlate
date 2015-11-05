@@ -173,10 +173,10 @@ public class MainActivity
 
             if (position == (PAGE_COUNT - 2)) {
                 fragment = new LocalArticleListFragment();
-                ((LocalArticleListFragment) fragment).setLocalListType(LocalArticleListFragment.LocalListType.valueOf("SAVED"));
+                ((LocalArticleListFragment) fragment).setLocalListType(LocalArticleListFragment.SAVED);
             } else if (position == (PAGE_COUNT - 1)) {
                 fragment = new LocalArticleListFragment();
-                ((LocalArticleListFragment) fragment).setLocalListType(LocalArticleListFragment.LocalListType.valueOf("SEARCHED"));
+                ((LocalArticleListFragment) fragment).setLocalListType(LocalArticleListFragment.SEARCHED);
             } else {
                 fragment = new ArticleListFragment();
             }

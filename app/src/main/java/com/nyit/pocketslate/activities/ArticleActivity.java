@@ -88,24 +88,26 @@ public class ArticleActivity extends FragmentActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
 
+            // Save current article.
             case R.id.action_save:
-
                 if (mCurrentEntry != null) {
                     if (!mIsSaved) {
                         saveEntry();
                     } else {
                         removeEntry();
                     }
-
                     setSavedMenuItem();
                 }
-
                 break;
 
-            case R.id.action_share:
+            // Open in browser.
+            case R.id.action_web:
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW);
+                browserIntent.setData(Uri.parse(mCurrentEntry.getLink()));
+                startActivity(browserIntent);
                 break;
-
             default:
+                break;
         }
         return super.onOptionsItemSelected(item);
     }

@@ -34,35 +34,11 @@ public class LocalArticleListFragment extends Fragment {
     private TextView mArticleHeaderText;
     private String mSectionTitle;
     private SharedPreferences.Editor mEditor;
-    private LocalListType localListType;
+    private String localListType;
 
-    public enum LocalListType {
-        SAVED("SAVED"),
-        SEARCHED("SEARCHED");
+    public static final String SAVED = "SAVED";
 
-        private String type;
-
-        LocalListType(String type) {
-            this.type = type;
-        }
-
-        public String toString() {
-            return this.type;
-        }
-
-        public LocalListType fromType(String type) {
-            if (type != null
-                    && !type.isEmpty()) {
-                for (LocalListType localListType : LocalListType.values()) {
-                    if (type.equalsIgnoreCase(localListType.type)) {
-                        return localListType;
-                    }
-                }
-            }
-
-            return null;
-        }
-    }
+    public static final String SEARCHED = "SEARCHED";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -103,9 +79,9 @@ public class LocalArticleListFragment extends Fragment {
 
         String headerText = "";
 
-        if (this.localListType.toString().equalsIgnoreCase("SAVED")) {
+        if (this.localListType.equalsIgnoreCase("SAVED")) {
             headerText = String.format("%s SAVED ARTICLES...", (mArticleList.getCount() - 1));
-        } else if (this.localListType.toString().equalsIgnoreCase("SEARCHED")) {
+        } else if (this.localListType.equalsIgnoreCase("SEARCHED")) {
             String lastQuery = userPrefs.getString("lastQuery", null);
             String resultsCount = String.valueOf(userPrefs.getInt("lastQueryResultsCount", (mArticleList.getCount() - 1)));
             headerText = String.format("%s ARTICLES RETURNED FOR SEARCH %s...", resultsCount, lastQuery != null ? lastQuery : "");
@@ -151,11 +127,11 @@ public class LocalArticleListFragment extends Fragment {
         }
     }
 
-    public LocalListType getLocalListType() {
+    public String getLocalListType() {
         return localListType;
     }
 
-    public void setLocalListType(LocalListType localListType) {
+    public void setLocalListType(String localListType) {
         this.localListType = localListType;
     }
 
