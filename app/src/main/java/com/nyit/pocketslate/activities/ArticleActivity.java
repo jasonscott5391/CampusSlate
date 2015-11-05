@@ -40,7 +40,6 @@ public class ArticleActivity extends FragmentActivity {
     private PocketArticlePagerAdapter mArticlePagerAdapter;
     private ViewPager mArticleViewPager;
     private Menu mMenu;
-    private ShareActionProvider mShareActionProvider;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,12 +74,6 @@ public class ArticleActivity extends FragmentActivity {
         getMenuInflater().inflate(R.menu.article, menu);
         setSavedMenuItem();
 
-        MenuItem shareMenuItem = mMenu.findItem(R.id.action_share);
-
-        mShareActionProvider = (ShareActionProvider) shareMenuItem.getActionProvider();
-
-        setShareIntent();
-
         return true;
     }
 
@@ -98,6 +91,17 @@ public class ArticleActivity extends FragmentActivity {
                     }
                     setSavedMenuItem();
                 }
+                break;
+
+            // Share intent.
+            case R.id.action_share:
+                Intent shareIntent = new Intent();
+                shareIntent.setAction(Intent.ACTION_SEND);
+
+                shareIntent.setType("text/plain");
+                shareIntent.putExtra(Intent.EXTRA_SUBJECT, mCurrentEntry.getTitle());
+                shareIntent.putExtra(Intent.EXTRA_TEXT, mCurrentEntry.getLink());
+                startActivity(shareIntent);
                 break;
 
             // Open in browser.
@@ -192,8 +196,6 @@ public class ArticleActivity extends FragmentActivity {
         if (mCurrentEntry != null) {
             mIsSaved = PocketDbHelper.getInstance(this).isBookmarked(String.valueOf(mCurrentEntry.getPublicationDate()));
         }
-
-        setShareIntent();
     }
 
     /**
@@ -205,27 +207,6 @@ public class ArticleActivity extends FragmentActivity {
         int resId = mIsSaved ? R.drawable.ic_action_saved : R.drawable.ic_action_not_saved;
         String saveText = mIsSaved ? "Remove" : "Save";
         menuItem.setIcon(resId).setTitle(saveText);
-    }
-
-    /**
-     * Sets the Intent for sharing the link to the current Entry.
-     */
-    private void setShareIntent() {
-
-        if (mCurrentEntry != null) {
-
-            Intent shareIntent = new Intent();
-            shareIntent.setAction(Intent.ACTION_SEND);
-
-            shareIntent.setType("text/plain");
-            shareIntent.putExtra(Intent.EXTRA_SUBJECT, mCurrentEntry.getTitle());
-            shareIntent.putExtra(Intent.EXTRA_TEXT, mCurrentEntry.getLink());
-
-            if (mShareActionProvider != null) {
-                mShareActionProvider.setShareIntent(shareIntent);
-            }
-
-        }
     }
 
     /**
